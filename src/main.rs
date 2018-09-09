@@ -40,7 +40,8 @@ fn main() -> Result<(), amethyst::Error> {
         .with_bundle(RenderBundle::new(pipe, Some(config)))?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
-        .with(systems::PlayerSystem, "player_system", &["input_system"]);
+        .with(systems::PlayerSystem, "player_system", &["input_system"])
+        .with(systems::GravitySystem, "gravity_system", &["player_system"]);
     let mut game = Application::build("./", Sidescroller)?.build(game_data)?;
     game.run();
     Ok(())
@@ -49,6 +50,8 @@ fn main() -> Result<(), amethyst::Error> {
 pub struct Player {
     pub width: f32,
     pub height: f32,
+    pub v_velocity: f32,
+    pub standing: bool,
 }
 
 impl Player {
@@ -56,6 +59,8 @@ impl Player {
         Player {
             width: 32.0,
             height: 32.0,
+            v_velocity: 0.0,
+            standing: true,
         }
     }
 }

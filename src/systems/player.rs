@@ -10,12 +10,12 @@ pub struct PlayerSystem;
 impl<'s> System<'s> for PlayerSystem {
 	type SystemData = (
 		WriteStorage<'s, Transform>,
-		ReadStorage<'s, Player>,
+		WriteStorage<'s, Player>,
 		Read<'s, InputHandler<String, String>>,
 	);
 
-	fn run(&mut self, (mut transforms, players, input): Self::SystemData) {
-		for (player, transform) in (&players, &mut transforms).join() {
+	fn run(&mut self, (mut transforms, mut players, input): Self::SystemData) {
+		for (player, transform) in (&mut players, &mut transforms).join() {
 			let movement = input.axis_value("running");
 
 			if let Some(mv_amount) = movement {
@@ -25,7 +25,8 @@ impl<'s> System<'s> for PlayerSystem {
 			}
 
 			if let Some(is_jumping) = input.action_is_down("jumping") {
-				if is_jumping {
+				if is_jumping && player.standing {
+					player.v_velocity = -400.0;
 					println!("JUMP");
 				}
 			}
