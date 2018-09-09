@@ -1,7 +1,6 @@
 use amethyst::assets::{AssetStorage, Loader};
 use amethyst::core::cgmath::{Matrix4, Vector3};
 use amethyst::core::transform::{GlobalTransform, Transform};
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
 use amethyst::renderer::{
@@ -15,6 +14,8 @@ pub const CAMERA_WIDTH: f32 = 640.0;
 pub const CAMERA_HEIGHT: f32 = 480.0;
 
 const SPRITESHEET_SIZE: (f32, f32) = (32.0, 32.0);
+
+use {Player};
 
 impl<'a, 'b> State<GameData<'a, 'b>> for Sidescroller {
 	fn on_start(&mut self, data: StateData<GameData>) {
@@ -66,24 +67,6 @@ fn initialise_camera(world: &mut World) {
 			Matrix4::from_translation(Vector3::new(0.0, 0.0, 1.0)).into(),
 		))
 		.build();
-}
-
-pub struct Player {
-	pub width: f32,
-	pub height: f32,
-}
-
-impl Player {
-	fn new() -> Player {
-		Player {
-			width: 32.0,
-			height: 32.0,
-		}
-	}
-}
-
-impl Component for Player {
-	type Storage = DenseVecStorage<Self>;
 }
 
 fn initialise_player(world: &mut World, spritesheet: TextureHandle) {

@@ -4,7 +4,7 @@
   max_dimensions: Some((640, 480)),
   min_dimensions: Some((640, 480)),
   fullscreen: false,
-  multisampling: 1,
+  multisampling: 0,
   visibility: true,
   vsync: true,
 )

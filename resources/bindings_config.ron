@@ -1,0 +1,8 @@
+(
+	axes: {
+		"running": Emulated(pos: Key(D), neg: Key(A)),
+	},
+	actions: {
+		"jumping": [Key(W)],
+	},
+)
