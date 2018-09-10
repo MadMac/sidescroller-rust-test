@@ -5,3 +5,4 @@ authors = []
 
 [dependencies]
 amethyst = "0.8.0"
+tiled = "0.8.0"
