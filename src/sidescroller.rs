@@ -121,6 +121,35 @@ fn initialise_map(world: &mut World) {
 		)
 	};
 
+	println!("{:?}", map.layers.get(0).unwrap().tiles);
+
+	let tiles = &map.layers.get(0).unwrap().tiles;
+
+	// TODO: More optimal way to render tiles?
+	for row in 0..tiles.len() {
+		for tile in 0..tiles[row].len() {
+			let tile_style = tiles[row][tile] as f32;
+			let tile_sprite = Sprite {
+				left: 32.0*tile_style,
+				right: 32.0*(tile_style+1.0),
+				top: 0.0,
+				bottom: 32.0,
+			};
+
+			let mut tile_transform = Transform::default();
+			tile_transform.translation = Vector3::new(32.0*(tile as f32), 32.0*(row as f32), 0.0);
+
+
+			world
+				.create_entity()
+				.with_sprite(&tile_sprite, map_tileset.clone(), SPRITESHEET_SIZE)
+				.expect("Failed to add sprite render on left paddle")
+				.with(GlobalTransform::default())
+				.with(tile_transform)
+				.build();
+		}
+	}
+
 	println!("{:?}", map);
 	println!("{:?}", tileset_path);
 }
