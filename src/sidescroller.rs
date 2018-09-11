@@ -31,7 +31,7 @@ impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 
 		let sprite_sheet_handle = load_sprite_sheet(world);
 
-		// initialise_map(world);
+		initialise_map(world);
 
 		world.register::<Player>();
 
@@ -89,7 +89,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		tex_coords,
 	};
 
-	let texture_id = 0;
+	let texture_id = 1;
 	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
 	material_texture_set.insert(texture_id, texture_handle);
 
@@ -140,83 +140,102 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 		.build();
 }
 
-// fn initialise_map(world: &mut World) {
-// 	// TODO: Add to config
-// 	let path_to_maps = Path::new("./resources/maps/");
+fn load_tileset_sheet(world: &mut World) -> SpriteSheetHandle {
+	let texture_handle = {
+		let loader = world.read_resource::<Loader>();
+		let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+		loader.load(
+			"resources/maps/tilesets/map_textures.png",
+			PngFormat,
+			Default::default(),
+			(),
+			&texture_storage,
+		)
+	};
 
-// 	let mut map_file = File::open(path_to_maps.join("test1.tmx")).unwrap();
-// 	let reader = BufReader::new(map_file);
-// 	let map = parse(reader).unwrap();
+	let tex_coords = TextureCoordinates {
+		left: 0.0,
+		right: 0.5,
+		bottom: 0.0,
+		top: 0.5,
+	};
 
-// 	let tileset_path = &map
-// 		.get_tileset_by_gid(1)
-// 		.unwrap()
-// 		.images
-// 		.get(0)
-// 		.unwrap()
-// 		.source;
+	let tileset_sprite = Sprite {
+		width: 32.0,
+		height: 32.0,
+		offsets: [32.0 / 2.0, 32.0 / 2.0],
+		tex_coords,
+	};
 
-// 	let map_tileset = {
-// 		let loader = world.read_resource::<Loader>();
-// 		let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-// 		loader.load(
-// 			path_to_maps.join(tileset_path).to_str().unwrap(),
-// 			PngFormat,
-// 			Default::default(),
-// 			(),
-// 			&texture_storage,
-// 		)
-// 	};
+	let texture_id = 0;
+	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
+	material_texture_set.insert(texture_id, texture_handle);
 
-// 	for layer in 1..2 {
-// 		let tiles = &map.layers.get(layer).unwrap().tiles;
-// 		for row in 0..tiles.len() {
-// 			for tile in 0..tiles[row].len() / 2 {
-// 				let tile_style = (tiles[row][tile] as f32) - 1.0;
+	let sprite_sheet = SpriteSheet {
+		texture_id,
+		sprites: vec![tileset_sprite],
+	};
 
-// 				if tile_style == -1.0 {
-// 					continue;
-// 				}
+	let sprite_sheet_handle = {
+		let loader = world.read_resource::<Loader>();
+		let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
+		loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
+	};
 
-// 				println!("style: {}", tile_style);
+	sprite_sheet_handle
+}
 
-// 				let tex_coords = TextureCoordinates {
-// 					left: 0.0,
-// 					right: 32.0 / 64.0,
-// 					bottom: 0.0,
-// 					top: 1.0,
-// 				};
-// 				let paddle_sprite = Sprite {
-// 					width: 32,
-// 					height: 32,
-// 					offsets: [0, 0],
-// 					tex_coords,
-// 				};
+fn initialise_map(world: &mut World) {
+	// TODO: Add to config
+	let path_to_maps = Path::new("./resources/maps/");
 
-// 				let tile_sprite = Sprite {
-// 					left: 0.0,
-// 					right: 16.0 * (tile_style + 1.0),
-// 					top: 0.0,
-// 					bottom: 32.0,
-// 				};
+	let map_file = File::open(path_to_maps.join("test1.tmx")).unwrap();
+	let reader = BufReader::new(map_file);
+	let map = parse(reader).unwrap();
 
-// 				println!("sprite: {:?}", tile_sprite);
+	let tileset_path = &map
+		.get_tileset_by_gid(1)
+		.unwrap()
+		.images
+		.get(0)
+		.unwrap()
+		.source;
 
-// 				let mut tile_transform = Transform::default();
-// 				tile_transform.translation =
-// 					Vector3::new(33.0 * (tile as f32), 33.0 * (row as f32), 0.0);
+	let tileset_sheet_handle = load_tileset_sheet(world);
 
-// 				world
-// 					.create_entity()
-// 					.with_sprite(&tile_sprite, map_tileset.clone(), SPRITESHEET_SIZE)
-// 					.expect("Failed to add tile")
-// 					.with(GlobalTransform::default())
-// 					.with(tile_transform)
-// 					.build();
-// 			}
-// 		}
-// 	}
+	for layer in 0..2 {
+		let tiles = &map.layers.get(layer).unwrap().tiles;
+		for row in 0..tiles.len() {
+			for tile in 0..tiles[row].len() {
+				let tile_style = (tiles[row][tile] as f32) - 1.0;
 
-// 	println!("{:?}", map);
-// 	println!("{:?}", tileset_path);
-// }
+				if tile_style == -1.0 {
+					continue;
+				}
+
+				println!("style: {}", tile_style);
+
+				let mut tile_transform = Transform::default();
+				tile_transform.translation =
+					Vector3::new(33.0 * (tile as f32), 33.0 * (row as f32), 0.0);
+
+				let tileset_render = SpriteRender {
+					sprite_sheet: tileset_sheet_handle.clone(),
+					sprite_number: 0, // paddle is the first sprite in the sprite_sheet
+					flip_horizontal: false,
+					flip_vertical: false,
+				};
+
+				world
+					.create_entity()
+					.with(tileset_render)
+					.with(GlobalTransform::default())
+					.with(tile_transform)
+					.build();
+			}
+		}
+	}
+
+	println!("{:?}", map);
+	println!("{:?}", tileset_path);
+}
