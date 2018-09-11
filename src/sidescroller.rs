@@ -122,7 +122,7 @@ fn initialise_camera(world: &mut World) {
 
 fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 	let mut player_transform = Transform::default();
-	player_transform.translation = Vector3::new(16.0, 240.0, 0.0);
+	player_transform.translation = Vector3::new(16.0, 240.0, 0.1);
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
@@ -221,7 +221,7 @@ fn initialise_map(world: &mut World) {
 
 				let tileset_render = SpriteRender {
 					sprite_sheet: tileset_sheet_handle.clone(),
-					sprite_number: 0, // paddle is the first sprite in the sprite_sheet
+					sprite_number: 0,
 					flip_horizontal: false,
 					flip_vertical: false,
 				};

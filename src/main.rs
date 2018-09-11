@@ -41,9 +41,12 @@ fn main() -> Result<(), amethyst::Error> {
     );
 
     let game_data = GameDataBuilder::default()
-        .with_bundle(RenderBundle::new(pipe, Some(config)).with_sprite_sheet_processor())?
         .with_bundle(TransformBundle::new())?
-        .with_bundle(input_bundle)?
+        .with_bundle(
+            RenderBundle::new(pipe, Some(config))
+                .with_sprite_sheet_processor()
+                .with_sprite_visibility_sorting(&["transform_system"]),
+        )?.with_bundle(input_bundle)?
         .with(systems::PlayerSystem, "player_system", &["input_system"])
         .with(systems::GravitySystem, "gravity_system", &["player_system"]);
     let mut game = Application::new(asset_path, Sidescroller, game_data)?;
