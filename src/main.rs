@@ -5,7 +5,7 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::input::InputBundle;
 use amethyst::prelude::*;
 use amethyst::renderer::{
-    DisplayConfig, DrawFlat, Event, Pipeline, PosNormTex, PosTex, RenderBundle, Stage,
+    DisplayConfig, DrawFlat, DrawSprite, Event, Pipeline, PosNormTex, PosTex, RenderBundle, Stage,
     VirtualKeyCode,
 };
 
@@ -26,23 +26,27 @@ fn main() -> Result<(), amethyst::Error> {
         "{}/resources/display_config.ron",
         env!("CARGO_MANIFEST_DIR")
     );
+
+    let asset_path = format!("{}", env!("CARGO_MANIFEST_DIR"));
+
     let config = DisplayConfig::load(&path);
 
-    let input_bundle = InputBundle::<String, String>::new().with_bindings_from_file(binding_path)?;
+    let input_bundle =
+        InputBundle::<String, String>::new().with_bindings_from_file(binding_path)?;
 
     let pipe = Pipeline::build().with_stage(
         Stage::with_backbuffer()
             .clear_target([0.0, 0.0, 0.0, 1.0], 1.0)
-            .with_pass(DrawFlat::<PosTex>::new()),
+            .with_pass(DrawSprite::new()),
     );
 
     let game_data = GameDataBuilder::default()
-        .with_bundle(RenderBundle::new(pipe, Some(config)))?
+        .with_bundle(RenderBundle::new(pipe, Some(config)).with_sprite_sheet_processor())?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
         .with(systems::PlayerSystem, "player_system", &["input_system"])
         .with(systems::GravitySystem, "gravity_system", &["player_system"]);
-    let mut game = Application::build("./", Sidescroller)?.build(game_data)?;
+    let mut game = Application::new(asset_path, Sidescroller, game_data)?;
     game.run();
     Ok(())
 }
