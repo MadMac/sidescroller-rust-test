@@ -164,7 +164,21 @@ fn load_tileset_sheet(world: &mut World) -> SpriteSheetHandle {
 		width: 32.0,
 		height: 32.0,
 		offsets: [32.0 / 2.0, 32.0 / 2.0],
-		tex_coords,
+		tex_coords: tex_coords,
+	};
+
+	let tex_coords2 = TextureCoordinates {
+		left: 0.5,
+		right: 1.0,
+		bottom: 0.0,
+		top: 0.5,
+	};
+
+	let tileset_sprite2 = Sprite {
+		width: 32.0,
+		height: 32.0,
+		offsets: [32.0 / 2.0, 32.0 / 2.0],
+		tex_coords: tex_coords2,
 	};
 
 	let texture_id = 0;
@@ -173,7 +187,7 @@ fn load_tileset_sheet(world: &mut World) -> SpriteSheetHandle {
 
 	let sprite_sheet = SpriteSheet {
 		texture_id,
-		sprites: vec![tileset_sprite],
+		sprites: vec![tileset_sprite, tileset_sprite2],
 	};
 
 	let sprite_sheet_handle = {
@@ -207,9 +221,9 @@ fn initialise_map(world: &mut World) {
 		let tiles = &map.layers.get(layer).unwrap().tiles;
 		for row in 0..tiles.len() {
 			for tile in 0..tiles[row].len() {
-				let tile_style = (tiles[row][tile] as f32) - 1.0;
+				let tile_style = (tiles[row][tile] as i32) - 1;
 
-				if tile_style == -1.0 {
+				if tile_style == -1 {
 					continue;
 				}
 
@@ -217,11 +231,11 @@ fn initialise_map(world: &mut World) {
 
 				let mut tile_transform = Transform::default();
 				tile_transform.translation =
-					Vector3::new(33.0 * (tile as f32), 33.0 * (row as f32), 0.0);
+					Vector3::new(32.0 * (tile as f32), 32.0 * ((20-row) as f32), 0.0);
 
 				let tileset_render = SpriteRender {
 					sprite_sheet: tileset_sheet_handle.clone(),
-					sprite_number: 0,
+					sprite_number: (tile_style as usize),
 					flip_horizontal: false,
 					flip_vertical: false,
 				};
