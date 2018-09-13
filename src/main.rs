@@ -72,6 +72,38 @@ impl Player {
     }
 }
 
+#[derive(Debug)]
+pub struct GameMap {
+    pub width: usize,
+    pub height: usize,
+    pub layers: Vec<MapLayer>,
+}
+
+impl GameMap {
+    fn new(width: usize, height: usize) -> GameMap {
+        GameMap {
+            width: width,
+            height: height,
+            layers: Vec::new(),
+        }
+    }
+
+    fn push(&mut self, mapLayer: MapLayer) {
+        self.layers.push(mapLayer);
+    }
+}
+
+#[derive(Debug)]
+pub struct MapLayer {
+    pub tiles: Vec<Vec<u32>>,
+}
+
+impl MapLayer {
+    fn new(tiles: Vec<Vec<u32>>) -> MapLayer {
+        MapLayer { tiles: tiles }
+    }
+}
+
 impl Component for Player {
     type Storage = DenseVecStorage<Self>;
 }

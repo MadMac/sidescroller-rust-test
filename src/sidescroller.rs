@@ -23,7 +23,13 @@ pub const CAMERA_HEIGHT: f32 = 480.0;
 
 const SPRITESHEET_SIZE: (f32, f32) = (32.0, 32.0);
 
+const TILE_SIZE: f32 = 32.0;
+
 use Player;
+
+use GameMap;
+
+use MapLayer;
 
 impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 	fn on_start(&mut self, data: StateData<GameData>) {
@@ -140,12 +146,12 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 		.build();
 }
 
-fn load_tileset_sheet(world: &mut World) -> SpriteSheetHandle {
+fn load_tileset_sheet(world: &mut World, tileset_path: &String) -> SpriteSheetHandle {
 	let texture_handle = {
 		let loader = world.read_resource::<Loader>();
 		let texture_storage = world.read_resource::<AssetStorage<Texture>>();
 		loader.load(
-			"resources/maps/tilesets/map_textures.png",
+			tileset_path.clone().as_str(),
 			PngFormat,
 			Default::default(),
 			(),
@@ -215,10 +221,25 @@ fn initialise_map(world: &mut World) {
 		.unwrap()
 		.source;
 
-	let tileset_sheet_handle = load_tileset_sheet(world);
+	let tileset_path = path_to_maps.join(tileset_path);
+
+	let tileset_sheet_handle = load_tileset_sheet(
+		world,
+		&tileset_path.clone().into_os_string().into_string().unwrap(),
+	);
+
+	let map_height = &(map.height as usize);
+	let map_width = &(map.width as usize);
+
+	let mut gameMap = GameMap::new(map_width.clone(), map_height.clone());
 
 	for layer in 0..2 {
 		let tiles = &map.layers.get(layer).unwrap().tiles;
+
+		let tileLayer = MapLayer::new(tiles.clone());
+
+		gameMap.push(tileLayer);
+
 		for row in 0..tiles.len() {
 			for tile in 0..tiles[row].len() {
 				let tile_style = (tiles[row][tile] as i32) - 1;
@@ -230,8 +251,11 @@ fn initialise_map(world: &mut World) {
 				println!("style: {}", tile_style);
 
 				let mut tile_transform = Transform::default();
-				tile_transform.translation =
-					Vector3::new(32.0 * (tile as f32), 32.0 * ((20-row) as f32), 0.0);
+				tile_transform.translation = Vector3::new(
+					32.0 * (tile as f32),
+					32.0 * ((map_height - row) as f32),
+					0.0,
+				);
 
 				let tileset_render = SpriteRender {
 					sprite_sheet: tileset_sheet_handle.clone(),
@@ -250,6 +274,5 @@ fn initialise_map(world: &mut World) {
 		}
 	}
 
-	println!("{:?}", map);
-	println!("{:?}", tileset_path);
+	println!("{:?}", gameMap);
 }
