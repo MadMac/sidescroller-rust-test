@@ -1,8 +1,8 @@
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, Read, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Join, Read, System, WriteStorage};
 use amethyst::input::InputHandler;
 
-use {Player};
+use Player;
 
 const MOVEMENT_SCALE: f32 = 3.0;
 
@@ -31,6 +31,4 @@ impl<'s> System<'s> for PlayerSystem {
 			}
 		}
 	}
-
-
 }

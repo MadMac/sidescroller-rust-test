@@ -4,10 +4,7 @@ use amethyst::core::transform::TransformBundle;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::input::InputBundle;
 use amethyst::prelude::*;
-use amethyst::renderer::{
-    DisplayConfig, DrawFlat, DrawSprite, Event, Pipeline, PosNormTex, PosTex, RenderBundle, Stage,
-    VirtualKeyCode,
-};
+use amethyst::renderer::{DisplayConfig, DrawSprite, Pipeline, RenderBundle, Stage};
 
 mod sidescroller;
 mod systems;
@@ -88,8 +85,8 @@ impl GameMap {
         }
     }
 
-    fn push(&mut self, mapLayer: MapLayer) {
-        self.layers.push(mapLayer);
+    fn push(&mut self, map_layer: MapLayer) {
+        self.layers.push(map_layer);
     }
 }
 

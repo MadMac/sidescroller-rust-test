@@ -1,8 +1,8 @@
 (
   title: "sidescroller_test",
   dimensions: Some((640, 480)),
-  max_dimensions: Some((640, 480)),
-  min_dimensions: Some((640, 480)),
+  max_dimensions: Some((800, 600)),
+  min_dimensions: Some((800, 600)),
   fullscreen: false,
   multisampling: 0,
   visibility: true,

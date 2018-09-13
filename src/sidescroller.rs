@@ -6,8 +6,8 @@ use amethyst::core::transform::{GlobalTransform, Transform};
 use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
 use amethyst::renderer::{
-	Camera, Event, MaterialTextureSet, PngFormat, Projection, Sprite, SpriteRender, SpriteSheet,
-	SpriteSheetHandle, Texture, TextureCoordinates, TextureHandle, VirtualKeyCode,
+	Camera, MaterialTextureSet, PngFormat, Projection, Sprite, SpriteRender, SpriteSheet,
+	SpriteSheetHandle, Texture, TextureCoordinates, VirtualKeyCode,
 };
 
 use std::fs::File;
@@ -18,12 +18,8 @@ use self::tiled::parse;
 
 pub struct Sidescroller;
 
-pub const CAMERA_WIDTH: f32 = 640.0;
-pub const CAMERA_HEIGHT: f32 = 480.0;
-
-const SPRITESHEET_SIZE: (f32, f32) = (32.0, 32.0);
-
-const TILE_SIZE: f32 = 32.0;
+pub const CAMERA_WIDTH: f32 = 800.0;
+pub const CAMERA_HEIGHT: f32 = 600.0;
 
 use Player;
 
@@ -231,14 +227,14 @@ fn initialise_map(world: &mut World) {
 	let map_height = &(map.height as usize);
 	let map_width = &(map.width as usize);
 
-	let mut gameMap = GameMap::new(map_width.clone(), map_height.clone());
+	let mut game_map = GameMap::new(map_width.clone(), map_height.clone());
 
 	for layer in 0..2 {
 		let tiles = &map.layers.get(layer).unwrap().tiles;
 
-		let tileLayer = MapLayer::new(tiles.clone());
+		let tile_layer = MapLayer::new(tiles.clone());
 
-		gameMap.push(tileLayer);
+		game_map.push(tile_layer);
 
 		for row in 0..tiles.len() {
 			for tile in 0..tiles[row].len() {
@@ -274,5 +270,5 @@ fn initialise_map(world: &mut World) {
 		}
 	}
 
-	println!("{:?}", gameMap);
+	println!("{:?}", game_map);
 }
