@@ -2,6 +2,11 @@
 <map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextobjectid="12">
  <tileset firstgid="1" name="default_tileset" tilewidth="32" tileheight="32" tilecount="2" columns="2">
   <image source="tilesets/map_textures.png" width="64" height="32"/>
+  <tile id="0">
+   <objectgroup draworder="index">
+    <object id="1" x="1.09091" y="0.909091" width="29.8182" height="30.1818"/>
+   </objectgroup>
+  </tile>
  </tileset>
  <layer name="Background" width="20" height="20">
   <data encoding="csv">

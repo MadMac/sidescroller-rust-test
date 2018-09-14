@@ -27,6 +27,7 @@ impl<'s> System<'s> for PlayerSystem {
 			if let Some(is_jumping) = input.action_is_down("jumping") {
 				if is_jumping && player.standing {
 					player.v_velocity = -600.0;
+					transform.translation[1] += 1.0;
 				}
 			}
 		}
