@@ -73,6 +73,7 @@ impl Player {
 pub struct GameMap {
     pub width: usize,
     pub height: usize,
+    pub tile_size: usize,
     pub layers: Vec<MapLayer>,
 }
 
@@ -82,6 +83,7 @@ impl GameMap {
             width: width,
             height: height,
             layers: Vec::new(),
+            tile_size: 32,
         }
     }
 
