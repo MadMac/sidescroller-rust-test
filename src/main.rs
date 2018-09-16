@@ -6,11 +6,16 @@ use amethyst::input::InputBundle;
 use amethyst::prelude::*;
 use amethyst::renderer::{DisplayConfig, DrawSprite, Pipeline, RenderBundle, Stage};
 
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
 mod sidescroller;
 mod systems;
 
 fn main() -> Result<(), amethyst::Error> {
-    amethyst::start_logger(Default::default());
+    // amethyst::start_logger(Default::default());
+    log4rs::init_file("log4rs.yml", Default::default()).unwrap();
 
     use sidescroller::Sidescroller;
 

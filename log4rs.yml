@@ -1,0 +1,58 @@
+# Scan this file for changes every 30 seconds
+refresh_rate: 30 seconds
+
+appenders:
+
+  # An appender named "stdout" that writes to stdout
+  stdout:
+    kind: console
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S)} {h({M} - {l} - {m})}{n}"
+
+  all:
+    kind: rolling_file
+    path: "log_files/all.log"
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S)} {h({M} - {l} - {m})}{n}"
+    policy: 
+      kind: compound
+      trigger:
+        kind: size
+        limit: 1mb
+      roller: 
+        kind: fixed_window
+        base: 1
+        count: 5
+        pattern: "log_files/all.{}.log"
+
+  engine:
+    kind: file
+    path: "log_files/engine.log"
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S)} {h({M} - {l} - {m})}{n}"
+
+root:
+  level: debug
+  appenders:
+    - all
+
+loggers:
+
+  gfx_device_gl::factory:
+    level: info
+    appenders:
+      - all
+  
+  
+  amethyst:
+    level: debug
+    appenders:
+      - all
+      - stdout
+
+  game_engine:
+    level: debug
+    appenders:
+      - all
+      - stdout
+      - engine

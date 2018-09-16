@@ -244,8 +244,6 @@ fn initialise_map(world: &mut World) {
 					continue;
 				}
 
-				println!("style: {}", tile_style);
-
 				let mut tile_transform = Transform::default();
 				tile_transform.translation = Vector3::new(
 					32.0 * (tile as f32),
@@ -271,7 +269,7 @@ fn initialise_map(world: &mut World) {
 	}
 
 
-	println!("{:?}", game_map);
+	debug!(target: "game_engine", "{:?}", game_map);
 	world.add_resource(game_map);
 
 
