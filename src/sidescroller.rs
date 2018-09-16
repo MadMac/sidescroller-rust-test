@@ -124,7 +124,7 @@ fn initialise_camera(world: &mut World) {
 
 fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 	let mut player_transform = Transform::default();
-	player_transform.translation = Vector3::new(16.0, 300.0, 0.1);
+	player_transform.translation = Vector3::new(32.0, 300.0, 0.1);
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
