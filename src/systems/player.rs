@@ -109,11 +109,11 @@ impl<'s> System<'s> for PlayerSystem {
 				player.standing = false;
 			}
 
-			debug!(target: "game_engine",
-				"Player coordinates: {} {}",
-				transform.translation[0], transform.translation[1]
-			);
-			debug!(target: "game_engine","{} {}", tile_y, tile_x);
+			// debug!(target: "game_engine",
+			// 	"Player coordinates: {} {}",
+			// 	transform.translation[0], transform.translation[1]
+			// );
+			// debug!(target: "game_engine","{} {}", tile_y, tile_x);
 		}
 	}
 }

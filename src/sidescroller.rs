@@ -142,7 +142,7 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 		.build();
 }
 
-fn load_tileset_sheet(world: &mut World, tileset_path: &String) -> SpriteSheetHandle {
+fn load_tileset_sheet(world: &mut World, tileset_path: &String, tile_size: f32, tile_sheet_width: f32) -> SpriteSheetHandle {
 	let texture_handle = {
 		let loader = world.read_resource::<Loader>();
 		let texture_storage = world.read_resource::<AssetStorage<Texture>>();
@@ -155,33 +155,35 @@ fn load_tileset_sheet(world: &mut World, tileset_path: &String) -> SpriteSheetHa
 		)
 	};
 
-	let tex_coords = TextureCoordinates {
-		left: 0.0,
-		right: 0.5,
-		bottom: 0.0,
-		top: 0.5,
-	};
 
-	let tileset_sprite = Sprite {
-		width: 32.0,
-		height: 32.0,
-		offsets: [32.0 / 2.0, 32.0 / 2.0],
-		tex_coords: tex_coords,
-	};
+	// TODO: Add support for rows in the tile sheet
+	let width_ratio = tile_size / tile_sheet_width;
+	let tile_amount = tile_sheet_width / tile_size;
 
-	let tex_coords2 = TextureCoordinates {
-		left: 0.5,
-		right: 1.0,
-		bottom: 0.0,
-		top: 0.5,
-	};
+	let mut sprite_vec = Vec::new();
+	
+	debug!(target: "game_engine", "width_ratio: {:?}", width_ratio);
+	debug!(target: "game_engine", "tile_size: {:?}", tile_size);
+	debug!(target: "game_engine", "tile_sheet_width: {:?}", tile_sheet_width);
 
-	let tileset_sprite2 = Sprite {
-		width: 32.0,
-		height: 32.0,
-		offsets: [32.0 / 2.0, 32.0 / 2.0],
-		tex_coords: tex_coords2,
-	};
+	for i in 0..tile_amount as i32 {
+		let tile_coords = TextureCoordinates {
+			left: (i as f32)*width_ratio,
+			right: (i as f32)*width_ratio+width_ratio,
+			bottom: 0.0,
+			top: 0.5,
+		};
+		debug!(target: "game_engine", "tile: {:?}", tile_coords);
+		let tile_sprite = Sprite {
+			width: tile_size,
+			height: tile_size,
+			offsets: [tile_size / 2.0, tile_size / 2.0],
+			tex_coords: tile_coords,
+		};
+
+		sprite_vec.push(tile_sprite.clone());
+
+	}
 
 	let texture_id = 0;
 	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
@@ -189,7 +191,7 @@ fn load_tileset_sheet(world: &mut World, tileset_path: &String) -> SpriteSheetHa
 
 	let sprite_sheet = SpriteSheet {
 		texture_id,
-		sprites: vec![tileset_sprite, tileset_sprite2],
+		sprites: sprite_vec,
 	};
 
 	let sprite_sheet_handle = {
@@ -217,11 +219,18 @@ fn initialise_map(world: &mut World) {
 		.unwrap()
 		.source;
 
+	debug!(target: "game_engine", "Tileset: {:?}", &map.get_tileset_by_gid(1).unwrap());
+
+	let tile_size = &map.get_tileset_by_gid(1).unwrap().tile_width;
+	let tile_sheet_width = &map.get_tileset_by_gid(1).unwrap().images.get(0).unwrap().width;
+
 	let tileset_path = path_to_maps.join(tileset_path);
 
 	let tileset_sheet_handle = load_tileset_sheet(
 		world,
 		&tileset_path.clone().into_os_string().into_string().unwrap(),
+		tile_size.clone() as f32,
+		tile_sheet_width.clone() as f32
 	);
 
 	let map_height = &(map.height as usize);
