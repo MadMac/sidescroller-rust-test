@@ -161,7 +161,7 @@ fn load_tileset_sheet(world: &mut World, tileset_path: &String, tile_size: f32, 
 	let tile_amount = tile_sheet_width / tile_size;
 
 	let mut sprite_vec = Vec::new();
-	
+
 	debug!(target: "game_engine", "width_ratio: {:?}", width_ratio);
 	debug!(target: "game_engine", "tile_size: {:?}", tile_size);
 	debug!(target: "game_engine", "tile_sheet_width: {:?}", tile_sheet_width);
@@ -210,6 +210,8 @@ fn initialise_map(world: &mut World) {
 	let map_file = File::open(path_to_maps.join("test1.tmx")).unwrap();
 	let reader = BufReader::new(map_file);
 	let map = parse(reader).unwrap();
+
+	debug!(target: "game_engine", "{:?}", map);
 
 	let tileset_path = &map
 		.get_tileset_by_gid(1)
