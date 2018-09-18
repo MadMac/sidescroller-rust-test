@@ -33,12 +33,15 @@ impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 		let world = data.world;
 
 		let sprite_sheet_handle = load_sprite_sheet(world);
+		let enemy_sprite_sheet_handle = load_enemy_sprite_sheet(world);
 
 		initialise_map(world);
 
 		world.register::<Player>();
+		world.register::<Actor>();
 
 		initialise_player(world, sprite_sheet_handle);
+		initialise_actor(world, enemy_sprite_sheet_handle);
 
 		initialise_camera(world);
 	}
@@ -110,6 +113,53 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 	sprite_sheet_handle
 }
 
+// TODO: Better way to handle multiple spritesheet loading
+fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
+	let texture_handle = {
+		let loader = world.read_resource::<Loader>();
+		let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+		loader.load(
+			"sprites/enemy.png",
+			PngFormat,
+			Default::default(),
+			(),
+			&texture_storage,
+		)
+	};
+
+	let tex_coords = TextureCoordinates {
+		left: 0.0,
+		right: 1.0,
+		bottom: 0.0,
+		top: 1.0,
+	};
+
+	let enemy_sprite = Sprite {
+		width: 32.0,
+		height: 32.0,
+		offsets: [32.0 / 2.0, 32.0 / 2.0],
+		tex_coords,
+	};
+
+	let texture_id = 2;
+	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
+	material_texture_set.insert(texture_id, texture_handle);
+
+	let sprite_sheet = SpriteSheet {
+		texture_id,
+		sprites: vec![enemy_sprite],
+	};
+
+	let sprite_sheet_handle = {
+		let loader = world.read_resource::<Loader>();
+		let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
+		loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
+	};
+
+	sprite_sheet_handle
+}
+
+
 fn initialise_camera(world: &mut World) {
 	world
 		.create_entity()
@@ -141,6 +191,27 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 		.with(Player::new())
 		.with(GlobalTransform::default())
 		.with(player_transform)
+		.build();
+}
+
+
+fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
+	let mut actor_transform = Transform::default();
+	actor_transform.translation = Vector3::new(224.0, 300.0, 0.1);
+
+	let sprite_render = SpriteRender {
+		sprite_sheet: sprite_sheet_handle.clone(),
+		sprite_number: 0, // paddle is the first sprite in the sprite_sheet
+		flip_horizontal: false,
+		flip_vertical: false,
+	};
+
+	world
+		.create_entity()
+		.with(sprite_render)
+		.with(Actor::new())
+		.with(GlobalTransform::default())
+		.with(actor_transform)
 		.build();
 }
 

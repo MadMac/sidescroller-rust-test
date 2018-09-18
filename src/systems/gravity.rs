@@ -16,6 +16,10 @@ impl<'s> System<'s> for GravitySystem {
 	fn run(&mut self, (mut actors, mut locals, time): Self::SystemData) {
 		for (actor, local) in (&mut actors, &mut locals).join() {
 			local.translation[1] -= actor.v_velocity * time.delta_seconds();
+
+			if !actor.standing {
+				actor.v_velocity += 1000.0 * time.delta_seconds();
+			}
 		}
 	}
 }

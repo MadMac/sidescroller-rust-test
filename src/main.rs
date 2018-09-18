@@ -50,7 +50,8 @@ fn main() -> Result<(), amethyst::Error> {
                 .with_sprite_visibility_sorting(&["transform_system"]),
         )?.with_bundle(input_bundle)?
         .with(systems::PlayerSystem, "player_system", &["input_system"])
-        .with(systems::GravitySystem, "gravity_system", &["player_system"]);
+        .with(systems::GravitySystem, "gravity_system", &["player_system"])
+        .with(systems::ActorSystem, "actor_system", &["gravity_system"]);
     let mut game = Application::new(asset_path, Sidescroller, game_data)?;
     game.run();
     Ok(())
@@ -60,6 +61,7 @@ pub struct Actor {
     pub width: f32,
     pub height: f32,
     pub v_velocity: f32,
+    pub standing: bool,
 }
 
 impl Actor {
@@ -67,19 +69,20 @@ impl Actor {
         Actor {
             width: 32.0,
             height: 32.0, 
-            v_velocity: 0.0,
+            v_velocity: 5.0,
+            standing: false,
         }
     }
 }
 
 pub struct Player {
-    pub standing: bool,
+    
 }
 
 impl Player {
     fn new() -> Player {
         Player {
-            standing: true,
+            
         }
     }
 }
