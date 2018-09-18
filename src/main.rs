@@ -56,19 +56,29 @@ fn main() -> Result<(), amethyst::Error> {
     Ok(())
 }
 
-pub struct Player {
+pub struct Actor {
     pub width: f32,
     pub height: f32,
     pub v_velocity: f32,
+}
+
+impl Actor {
+    fn new() -> Actor {
+        Actor {
+            width: 32.0,
+            height: 32.0, 
+            v_velocity: 0.0,
+        }
+    }
+}
+
+pub struct Player {
     pub standing: bool,
 }
 
 impl Player {
     fn new() -> Player {
         Player {
-            width: 32.0,
-            height: 32.0,
-            v_velocity: 0.0,
             standing: true,
         }
     }
@@ -109,5 +119,9 @@ impl MapLayer {
 }
 
 impl Component for Player {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl Component for Actor {
     type Storage = DenseVecStorage<Self>;
 }

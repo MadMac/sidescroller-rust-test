@@ -22,6 +22,7 @@ pub const CAMERA_WIDTH: f32 = 800.0;
 pub const CAMERA_HEIGHT: f32 = 600.0;
 
 use Player;
+use Actor;
 
 use GameMap;
 
@@ -136,13 +137,19 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 	world
 		.create_entity()
 		.with(sprite_render)
+		.with(Actor::new())
 		.with(Player::new())
 		.with(GlobalTransform::default())
 		.with(player_transform)
 		.build();
 }
 
-fn load_tileset_sheet(world: &mut World, tileset_path: &String, tile_size: f32, tile_sheet_width: f32) -> SpriteSheetHandle {
+fn load_tileset_sheet(
+	world: &mut World,
+	tileset_path: &String,
+	tile_size: f32,
+	tile_sheet_width: f32,
+) -> SpriteSheetHandle {
 	let texture_handle = {
 		let loader = world.read_resource::<Loader>();
 		let texture_storage = world.read_resource::<AssetStorage<Texture>>();
@@ -154,7 +161,6 @@ fn load_tileset_sheet(world: &mut World, tileset_path: &String, tile_size: f32, 
 			&texture_storage,
 		)
 	};
-
 
 	// TODO: Add support for rows in the tile sheet
 	let width_ratio = tile_size / tile_sheet_width;
@@ -168,8 +174,8 @@ fn load_tileset_sheet(world: &mut World, tileset_path: &String, tile_size: f32, 
 
 	for i in 0..tile_amount as i32 {
 		let tile_coords = TextureCoordinates {
-			left: (i as f32)*width_ratio,
-			right: (i as f32)*width_ratio+width_ratio,
+			left: (i as f32) * width_ratio,
+			right: (i as f32) * width_ratio + width_ratio,
 			bottom: 0.0,
 			top: 0.5,
 		};
@@ -182,7 +188,6 @@ fn load_tileset_sheet(world: &mut World, tileset_path: &String, tile_size: f32, 
 		};
 
 		sprite_vec.push(tile_sprite.clone());
-
 	}
 
 	let texture_id = 0;
@@ -224,7 +229,13 @@ fn initialise_map(world: &mut World) {
 	debug!(target: "game_engine", "Tileset: {:?}", &map.get_tileset_by_gid(1).unwrap());
 
 	let tile_size = &map.get_tileset_by_gid(1).unwrap().tile_width;
-	let tile_sheet_width = &map.get_tileset_by_gid(1).unwrap().images.get(0).unwrap().width;
+	let tile_sheet_width = &map
+		.get_tileset_by_gid(1)
+		.unwrap()
+		.images
+		.get(0)
+		.unwrap()
+		.width;
 
 	let tileset_path = path_to_maps.join(tileset_path);
 
@@ -232,7 +243,7 @@ fn initialise_map(world: &mut World) {
 		world,
 		&tileset_path.clone().into_os_string().into_string().unwrap(),
 		tile_size.clone() as f32,
-		tile_sheet_width.clone() as f32
+		tile_sheet_width.clone() as f32,
 	);
 
 	let map_height = &(map.height as usize);
@@ -279,9 +290,6 @@ fn initialise_map(world: &mut World) {
 		}
 	}
 
-
 	debug!(target: "game_engine", "{:?}", game_map);
 	world.add_resource(game_map);
-
-
 }

@@ -4,6 +4,7 @@ use amethyst::ecs::{Join, Read, ReadExpect, System, WriteStorage};
 use amethyst::input::InputHandler;
 
 use GameMap;
+use Actor;
 use Player;
 
 const MOVEMENT_SCALE: f32 = 3.0;
@@ -13,13 +14,14 @@ impl<'s> System<'s> for PlayerSystem {
 	type SystemData = (
 		WriteStorage<'s, Transform>,
 		WriteStorage<'s, Player>,
+		WriteStorage<'s, Actor>,
 		ReadExpect<'s, GameMap>,
 		Read<'s, InputHandler<String, String>>,
 		Read<'s, Time>,
 	);
 
-	fn run(&mut self, (mut transforms, mut players, game_map, input, time): Self::SystemData) {
-		for (player, transform) in (&mut players, &mut transforms).join() {
+	fn run(&mut self, (mut transforms, mut players, mut actors, game_map, input, time): Self::SystemData) {
+		for (player, actor, transform) in (&mut players, &mut actors, &mut transforms).join() {
 			let movement = input.axis_value("running");
 
 			if let Some(mv_amount) = movement {
@@ -30,7 +32,7 @@ impl<'s> System<'s> for PlayerSystem {
 
 			if let Some(is_jumping) = input.action_is_down("jumping") {
 				if is_jumping && player.standing {
-					player.v_velocity = -600.0;
+					actor.v_velocity = -600.0;
 					transform.translation[1] += 1.0;
 				}
 			}
@@ -85,10 +87,10 @@ impl<'s> System<'s> for PlayerSystem {
 				|| collision_layer.tiles[tile_y + 1][tile_x_right] == 1)
 				&& (transform.translation[1] - tile_size_as_f32 / 2.0)
 					< ((&game_map.height - tile_y) * &game_map.tile_size) as f32
-				&& player.v_velocity >= 0.0
+				&& actor.v_velocity >= 0.0
 			{
 				// debug!(target: "game_engine", "DOWN COLLIDE");
-				player.v_velocity = 0.0;
+				actor.v_velocity = 0.0;
 				player.standing = true;
 				transform.translation[1] = (&game_map.height * &game_map.tile_size) as f32
 					- (tile_y * &game_map.tile_size) as f32;
@@ -96,16 +98,16 @@ impl<'s> System<'s> for PlayerSystem {
 				|| collision_layer.tiles[tile_y - 1][tile_x_right] == 1)
 				&& (transform.translation[1] + tile_size_as_f32 / 2.0)
 					< ((&game_map.height + tile_y) * &game_map.tile_size) as f32
-				&& player.v_velocity < 0.0
+				&& actor.v_velocity < 0.0
 			{
 				// Upwards
 				// debug!(target: "game_engine", "UP COLLIDE");
-				player.v_velocity = 0.0;
+				actor.v_velocity = 0.0;
 				player.standing = false;
 				transform.translation[1] = (&game_map.height * &game_map.tile_size) as f32
 					- (tile_y * &game_map.tile_size) as f32;
 			} else {
-				player.v_velocity += 1000.0 * time.delta_seconds();
+				actor.v_velocity += 1000.0 * time.delta_seconds();
 				player.standing = false;
 			}
 
