@@ -21,8 +21,9 @@ pub struct Sidescroller;
 pub const CAMERA_WIDTH: f32 = 800.0;
 pub const CAMERA_HEIGHT: f32 = 600.0;
 
-use Player;
 use Actor;
+use Player;
+use Enemy;
 
 use GameMap;
 
@@ -159,7 +160,6 @@ fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 	sprite_sheet_handle
 }
 
-
 fn initialise_camera(world: &mut World) {
 	world
 		.create_entity()
@@ -187,17 +187,15 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 	world
 		.create_entity()
 		.with(sprite_render)
-		.with(Actor::new())
+		.with(Actor::new(32.0, 300.0))
 		.with(Player::new())
 		.with(GlobalTransform::default())
 		.with(player_transform)
 		.build();
 }
 
-
 fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
-	let mut actor_transform = Transform::default();
-	actor_transform.translation = Vector3::new(224.0, 300.0, 0.1);
+	let game_map = world.read_resource::<GameMap>().clone();
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
@@ -206,13 +204,24 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 		flip_vertical: false,
 	};
 
-	world
-		.create_entity()
-		.with(sprite_render)
-		.with(Actor::new())
-		.with(GlobalTransform::default())
-		.with(actor_transform)
-		.build();
+	let map_height_in_pixels = (game_map.height*game_map.tile_size) as f32;
+
+
+	for actor in &game_map.actors {
+		let mut actor_transform = Transform::default();
+		actor_transform.translation = Vector3::new(actor.spawn.0, map_height_in_pixels-actor.spawn.1, 0.1);
+
+		debug!(target: "game_engine", "Spawn actor: {:?}", actor);
+
+		world
+			.create_entity()
+			.with(sprite_render.clone())
+			.with(actor.clone())
+			.with(Enemy::new())
+			.with(GlobalTransform::default())
+			.with(actor_transform)
+			.build();
+	}
 }
 
 fn load_tileset_sheet(
@@ -359,6 +368,15 @@ fn initialise_map(world: &mut World) {
 					.build();
 			}
 		}
+	}
+
+	let map_objects = &map.object_groups.get(0).unwrap().objects;
+
+	// TODO: Multiple object layers
+	for object in map_objects {
+		let enemy = Actor::new(object.x, object.y);
+		debug!(target: "game_engine", "{:?}", enemy);
+		game_map.add_actor(enemy);
 	}
 
 	debug!(target: "game_engine", "{:?}", game_map);

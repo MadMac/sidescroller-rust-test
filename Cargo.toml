@@ -8,3 +8,4 @@ amethyst = { path = '../amethyst' }
 tiled = "0.8.0"
 log = "0.4"
 log4rs = "0.8.0"
+rand = "0.5.5"

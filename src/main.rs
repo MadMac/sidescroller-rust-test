@@ -1,4 +1,5 @@
 extern crate amethyst;
+extern crate rand;
 
 use amethyst::core::transform::TransformBundle;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
@@ -49,28 +50,32 @@ fn main() -> Result<(), amethyst::Error> {
                 .with_sprite_sheet_processor()
                 .with_sprite_visibility_sorting(&["transform_system"]),
         )?.with_bundle(input_bundle)?
+        .with(systems::ActorSystem, "actor_system", &["transform_system"])
         .with(systems::PlayerSystem, "player_system", &["input_system"])
-        .with(systems::GravitySystem, "gravity_system", &["player_system"])
-        .with(systems::ActorSystem, "actor_system", &["gravity_system"]);
+        .with(systems::EnemySystem, "enemy_system", &["actor_system"])
+        .with(systems::GravitySystem, "gravity_system", &["actor_system"]);
     let mut game = Application::new(asset_path, Sidescroller, game_data)?;
     game.run();
     Ok(())
 }
 
+#[derive(Debug, Clone)]
 pub struct Actor {
     pub width: f32,
     pub height: f32,
     pub v_velocity: f32,
     pub standing: bool,
+    pub spawn: (f32, f32),
 }
 
 impl Actor {
-    fn new() -> Actor {
+    fn new(x: f32, y: f32) -> Actor {
         Actor {
             width: 32.0,
             height: 32.0, 
             v_velocity: 5.0,
             standing: false,
+            spawn: (x, y),
         }
     }
 }
@@ -87,12 +92,13 @@ impl Player {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GameMap {
     pub width: usize,
     pub height: usize,
     pub tile_size: usize,
     pub layers: Vec<MapLayer>,
+    pub actors: Vec<Actor>,
 }
 
 impl GameMap {
@@ -102,15 +108,20 @@ impl GameMap {
             height: height,
             layers: Vec::new(),
             tile_size: 32,
+            actors: Vec::new(),
         }
     }
 
     fn push(&mut self, map_layer: MapLayer) {
         self.layers.push(map_layer);
     }
+
+    fn add_actor(&mut self, actor: Actor) {
+        self.actors.push(actor); 
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MapLayer {
     pub tiles: Vec<Vec<u32>>,
 }
@@ -126,5 +137,21 @@ impl Component for Player {
 }
 
 impl Component for Actor {
+    type Storage = DenseVecStorage<Self>;
+}
+
+pub struct Enemy {
+    
+}
+
+impl Enemy {
+    fn new() -> Enemy {
+        Enemy {
+            
+        }
+    }
+}
+
+impl Component for Enemy {
     type Storage = DenseVecStorage<Self>;
 }
