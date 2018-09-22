@@ -22,8 +22,8 @@ pub const CAMERA_WIDTH: f32 = 800.0;
 pub const CAMERA_HEIGHT: f32 = 600.0;
 
 use Actor;
-use Player;
 use Enemy;
+use Player;
 
 use GameMap;
 
@@ -32,6 +32,8 @@ use MapLayer;
 impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 	fn on_start(&mut self, data: StateData<GameData>) {
 		let world = data.world;
+
+		initialise_camera(world);
 
 		let sprite_sheet_handle = load_sprite_sheet(world);
 		let enemy_sprite_sheet_handle = load_enemy_sprite_sheet(world);
@@ -43,8 +45,6 @@ impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 
 		initialise_player(world, sprite_sheet_handle);
 		initialise_actor(world, enemy_sprite_sheet_handle);
-
-		initialise_camera(world);
 	}
 
 	fn handle_event(
@@ -161,6 +161,9 @@ fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 }
 
 fn initialise_camera(world: &mut World) {
+	let mut camera_transform = Transform::default();
+	camera_transform.translation = Vector3::new(0.0, 0.0, 1.0);
+
 	world
 		.create_entity()
 		.with(Camera::from(Projection::orthographic(
@@ -168,9 +171,9 @@ fn initialise_camera(world: &mut World) {
 			CAMERA_WIDTH,
 			CAMERA_HEIGHT,
 			0.0,
-		))).with(GlobalTransform(
-			Matrix4::from_translation(Vector3::new(0.0, 0.0, 1.0)).into(),
-		)).build();
+		))).with(GlobalTransform::default())
+		.with(camera_transform)
+		.build();
 }
 
 fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
@@ -204,12 +207,12 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 		flip_vertical: false,
 	};
 
-	let map_height_in_pixels = (game_map.height*game_map.tile_size) as f32;
-
+	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
 
 	for actor in &game_map.actors {
 		let mut actor_transform = Transform::default();
-		actor_transform.translation = Vector3::new(actor.spawn.0, map_height_in_pixels-actor.spawn.1, 0.1);
+		actor_transform.translation =
+			Vector3::new(actor.spawn.0, map_height_in_pixels - actor.spawn.1, 0.1);
 
 		debug!(target: "game_engine", "Spawn actor: {:?}", actor);
 
