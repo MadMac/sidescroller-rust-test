@@ -1,6 +1,3 @@
-use std::path::Path;
-use amethyst::config::Config;
-
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MapConfig {
 	pub map_path: String,

@@ -1,11 +1,9 @@
-use amethyst::core::timing::Time;
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Join, Read, ReadStorage, System, WriteStorage};
 use amethyst::input::InputHandler;
 use amethyst::renderer::Camera;
 
 use Actor;
-use GameMap;
 use Player;
 
 const MOVEMENT_SCALE: f32 = 3.0;
@@ -17,20 +15,18 @@ impl<'s> System<'s> for PlayerSystem {
 		WriteStorage<'s, Player>,
 		WriteStorage<'s, Actor>,
 		ReadStorage<'s, Camera>,
-		ReadExpect<'s, GameMap>,
 		Read<'s, InputHandler<String, String>>,
-		Read<'s, Time>,
 	);
 
 	fn run(
 		&mut self,
-		(mut transforms, mut players, mut actors, camera, game_map, input, time): Self::SystemData,
+		(mut transforms, mut players, mut actors, camera, input): Self::SystemData,
 	) {
 		let movement = input.axis_value("running");
 		let mut player_x = 0.0;
 		let mut player_y = 0.0;
 
-		for (player, actor, transform) in (&mut players, &mut actors, &mut transforms).join() {
+		for (_, actor, transform) in (&mut players, &mut actors, &mut transforms).join() {
 			if let Some(mv_amount) = movement {
 				let scaled_amount = MOVEMENT_SCALE * mv_amount as f32;
 

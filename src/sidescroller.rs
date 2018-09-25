@@ -1,7 +1,7 @@
 extern crate tiled;
 
 use amethyst::assets::{AssetStorage, Loader};
-use amethyst::core::cgmath::{Matrix4, Vector3};
+use amethyst::core::cgmath::{Vector3};
 use amethyst::core::transform::{GlobalTransform, Transform};
 use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
@@ -12,7 +12,6 @@ use amethyst::renderer::{
 
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
 use std::path::PathBuf;
 
 use self::tiled::parse;
