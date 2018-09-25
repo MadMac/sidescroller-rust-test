@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 extern crate amethyst;
 extern crate rand;
 
@@ -11,8 +14,11 @@ use amethyst::renderer::{DisplayConfig, DrawSprite, Pipeline, RenderBundle, Stag
 extern crate log;
 extern crate log4rs;
 
+mod config;
 mod sidescroller;
 mod systems;
+
+use config::GeneralConfig;
 
 fn main() -> Result<(), amethyst::Error> {
     // amethyst::start_logger(Default::default());
@@ -30,9 +36,16 @@ fn main() -> Result<(), amethyst::Error> {
         env!("CARGO_MANIFEST_DIR")
     );
 
+    let general_path = format!(
+        "{}/resources/general_config.ron",
+        env!("CARGO_MANIFEST_DIR")
+    );
+
     let asset_path = format!("{}", env!("CARGO_MANIFEST_DIR"));
 
-    let config = DisplayConfig::load(&path);
+    let general_config = GeneralConfig::load(&general_path);
+
+    let display_config = DisplayConfig::load(&path);
 
     let input_bundle =
         InputBundle::<String, String>::new().with_bindings_from_file(binding_path)?;
@@ -46,7 +59,7 @@ fn main() -> Result<(), amethyst::Error> {
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
         .with_bundle(
-            RenderBundle::new(pipe, Some(config))
+            RenderBundle::new(pipe, Some(display_config))
                 .with_sprite_sheet_processor()
                 .with_sprite_visibility_sorting(&["transform_system"]),
         )?.with_bundle(input_bundle)?
@@ -54,7 +67,9 @@ fn main() -> Result<(), amethyst::Error> {
         .with(systems::PlayerSystem, "player_system", &["input_system"])
         .with(systems::EnemySystem, "enemy_system", &["actor_system"])
         .with(systems::GravitySystem, "gravity_system", &["actor_system"]);
-    let mut game = Application::new(asset_path, Sidescroller, game_data)?;
+    let mut game = Application::build(asset_path, Sidescroller)?
+        .with_resource(general_config.map)
+        .build(game_data)?;
     game.run();
     Ok(())
 }
@@ -72,7 +87,7 @@ impl Actor {
     fn new(x: f32, y: f32) -> Actor {
         Actor {
             width: 32.0,
-            height: 32.0, 
+            height: 32.0,
             v_velocity: 5.0,
             standing: false,
             spawn: (x, y),
@@ -80,15 +95,11 @@ impl Actor {
     }
 }
 
-pub struct Player {
-    
-}
+pub struct Player {}
 
 impl Player {
     fn new() -> Player {
-        Player {
-            
-        }
+        Player {}
     }
 }
 
@@ -117,7 +128,7 @@ impl GameMap {
     }
 
     fn add_actor(&mut self, actor: Actor) {
-        self.actors.push(actor); 
+        self.actors.push(actor);
     }
 }
 
@@ -140,15 +151,11 @@ impl Component for Actor {
     type Storage = DenseVecStorage<Self>;
 }
 
-pub struct Enemy {
-    
-}
+pub struct Enemy {}
 
 impl Enemy {
     fn new() -> Enemy {
-        Enemy {
-            
-        }
+        Enemy {}
     }
 }
 

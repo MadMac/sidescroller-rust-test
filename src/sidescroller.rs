@@ -13,6 +13,7 @@ use amethyst::renderer::{
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use std::path::PathBuf;
 
 use self::tiled::parse;
 
@@ -28,6 +29,8 @@ use Player;
 use GameMap;
 
 use MapLayer;
+
+use config::MapConfig;
 
 impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 	fn on_start(&mut self, data: StateData<GameData>) {
@@ -292,8 +295,9 @@ fn load_tileset_sheet(
 }
 
 fn initialise_map(world: &mut World) {
-	// TODO: Add to config
-	let path_to_maps = Path::new("./resources/maps/");
+	let path_to_maps = PathBuf::from(&world.read_resource::<MapConfig>().map_path);
+
+	debug!(target: "game_engine", "Maps folder: {:?}", path_to_maps);
 
 	let map_file = File::open(path_to_maps.join("test1.tmx")).unwrap();
 	let reader = BufReader::new(map_file);
