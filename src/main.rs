@@ -17,8 +17,10 @@ extern crate log4rs;
 mod config;
 mod sidescroller;
 mod systems;
+mod game_data;
 
 use config::GeneralConfig;
+use game_data::CustomGameDataBuilder;
 
 fn main() -> Result<(), amethyst::Error> {
     // amethyst::start_logger(Default::default());
@@ -56,17 +58,18 @@ fn main() -> Result<(), amethyst::Error> {
             .with_pass(DrawSprite::new()),
     );
 
-    let game_data = GameDataBuilder::default()
-        .with_bundle(TransformBundle::new())?
-        .with_bundle(
+    let game_data = CustomGameDataBuilder::default()
+        .with_running(systems::ActorSystem, "actor_system", &[])
+        .with_running(systems::PlayerSystem, "player_system", &[])
+        .with_running(systems::EnemySystem, "enemy_system", &["actor_system"])
+        .with_running(systems::GravitySystem, "gravity_system", &["actor_system"])
+        .with_base_bundle(TransformBundle::new())?
+        .with_base_bundle(
             RenderBundle::new(pipe, Some(display_config))
                 .with_sprite_sheet_processor()
                 .with_sprite_visibility_sorting(&["transform_system"]),
-        )?.with_bundle(input_bundle)?
-        .with(systems::ActorSystem, "actor_system", &["transform_system"])
-        .with(systems::PlayerSystem, "player_system", &["input_system"])
-        .with(systems::EnemySystem, "enemy_system", &["actor_system"])
-        .with(systems::GravitySystem, "gravity_system", &["actor_system"]);
+        )?.with_base_bundle(input_bundle)?;
+        
     let mut game = Application::build(asset_path, Sidescroller)?
         .with_resource(general_config.map)
         .build(game_data)?;

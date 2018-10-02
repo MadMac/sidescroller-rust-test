@@ -1,7 +1,9 @@
 extern crate tiled;
 
+use game_data::CustomGameData;
+
 use amethyst::assets::{AssetStorage, Loader};
-use amethyst::core::cgmath::{Vector3};
+use amethyst::core::cgmath::Vector3;
 use amethyst::core::transform::{GlobalTransform, Transform};
 use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
@@ -31,8 +33,8 @@ use MapLayer;
 
 use config::MapConfig;
 
-impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
-	fn on_start(&mut self, data: StateData<GameData>) {
+impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
+	fn on_start(&mut self, data: StateData<CustomGameData>) {
 		let world = data.world;
 
 		initialise_camera(world);
@@ -51,9 +53,9 @@ impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 
 	fn handle_event(
 		&mut self,
-		_: StateData<GameData>,
+		_: StateData<CustomGameData>,
 		event: StateEvent<()>,
-	) -> SimpleTrans<'a, 'b> {
+	) -> Trans<CustomGameData<'a, 'b>, ()> {
 		if let StateEvent::Window(event) = &event {
 			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
 				Trans::Quit
@@ -65,8 +67,8 @@ impl<'a, 'b> SimpleState<'a, 'b> for Sidescroller {
 		}
 	}
 
-	fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans<'a, 'b> {
-		data.data.update(&data.world);
+	fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, ()> {
+		data.data.update(&data.world, true);
 		Trans::None
 	}
 }
@@ -173,7 +175,8 @@ fn initialise_camera(world: &mut World) {
 			CAMERA_WIDTH,
 			CAMERA_HEIGHT,
 			0.0,
-		))).with(GlobalTransform::default())
+		)))
+		.with(GlobalTransform::default())
 		.with(camera_transform)
 		.build();
 }
