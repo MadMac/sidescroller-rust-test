@@ -19,6 +19,7 @@ use std::path::PathBuf;
 use self::tiled::parse;
 
 pub struct Sidescroller;
+pub struct Menu;
 
 pub const CAMERA_WIDTH: f32 = 800.0;
 pub const CAMERA_HEIGHT: f32 = 600.0;
@@ -32,6 +33,37 @@ use GameMap;
 use MapLayer;
 
 use config::MapConfig;
+
+
+impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Menu {
+    fn on_start(&mut self, _: StateData<CustomGameData>) {
+		debug!(target: "game_engine", "GAME PAUSED!");
+    }
+
+    fn handle_event(
+        &mut self,
+        _: StateData<CustomGameData>,
+		event: StateEvent<()>,
+    ) -> Trans<CustomGameData<'a, 'b>, ()> {
+		if let StateEvent::Window(event) = &event {
+			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
+				Trans::Quit
+			} else if is_key_down(&event, VirtualKeyCode::P) {
+				debug!(target: "game_engine", "GAME UNPAUSED!");
+				Trans::Pop
+			} else {
+				Trans::None
+			}
+		} else {
+			Trans::None
+		}
+    }
+
+    fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, ()> {
+        data.data.update(&data.world, false); // false to say we should not dispatch running
+        Trans::None
+    }
+}
 
 impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
 	fn on_start(&mut self, data: StateData<CustomGameData>) {
@@ -59,6 +91,8 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
 		if let StateEvent::Window(event) = &event {
 			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
 				Trans::Quit
+			} else if is_key_down(&event, VirtualKeyCode::P) {
+            	Trans::Push(Box::new(Menu))
 			} else {
 				Trans::None
 			}
