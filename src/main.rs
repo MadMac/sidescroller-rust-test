@@ -78,22 +78,30 @@ fn main() -> Result<(), amethyst::Error> {
 }
 
 #[derive(Debug, Clone)]
+pub enum ActorType {
+    ENEMY,
+    PLAYER,
+}
+
+#[derive(Debug, Clone)]
 pub struct Actor {
     pub width: f32,
     pub height: f32,
     pub v_velocity: f32,
     pub standing: bool,
     pub spawn: (f32, f32),
+    pub actor_type: ActorType,
 }
 
 impl Actor {
-    fn new(x: f32, y: f32) -> Actor {
+    fn new(x: f32, y: f32, actor_type: ActorType) -> Actor {
         Actor {
             width: 32.0,
             height: 32.0,
             v_velocity: 5.0,
             standing: false,
             spawn: (x, y),
+            actor_type: actor_type,
         }
     }
 }

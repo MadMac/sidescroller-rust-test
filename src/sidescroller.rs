@@ -27,6 +27,7 @@ pub const CAMERA_HEIGHT: f32 = 600.0;
 use Actor;
 use Enemy;
 use Player;
+use ActorType;
 
 use GameMap;
 
@@ -229,7 +230,7 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 	world
 		.create_entity()
 		.with(sprite_render)
-		.with(Actor::new(32.0, 300.0))
+		.with(Actor::new(32.0, 300.0, ActorType::PLAYER))
 		.with(Player::new())
 		.with(GlobalTransform::default())
 		.with(player_transform)
@@ -417,7 +418,7 @@ fn initialise_map(world: &mut World) {
 
 	// TODO: Multiple object layers
 	for object in map_objects {
-		let enemy = Actor::new(object.x, object.y);
+		let enemy = Actor::new(object.x, object.y, ActorType::ENEMY);
 		debug!(target: "game_engine", "{:?}", enemy);
 		game_map.add_actor(enemy);
 	}

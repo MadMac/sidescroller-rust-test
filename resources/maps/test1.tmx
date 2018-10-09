@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextobjectid="17">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextobjectid="22">
  <tileset firstgid="1" name="default_tileset" tilewidth="32" tileheight="32" tilecount="2" columns="2">
   <image source="tilesets/map_textures.png" width="64" height="32"/>
   <tile id="0">
@@ -81,6 +81,11 @@
    <point/>
   </object>
   <object id="16" name="enemy_2" type="enemy" x="115" y="371">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup name="Allies">
+  <object id="18" name="Player" type="player" x="128" y="717">
    <point/>
   </object>
  </objectgroup>
