@@ -77,10 +77,11 @@ fn main() -> Result<(), amethyst::Error> {
     Ok(())
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ActorType {
     ENEMY,
     PLAYER,
+    NOTYPE,
 }
 
 #[derive(Debug, Clone)]

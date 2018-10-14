@@ -25,9 +25,9 @@ pub const CAMERA_WIDTH: f32 = 800.0;
 pub const CAMERA_HEIGHT: f32 = 600.0;
 
 use Actor;
+use ActorType;
 use Enemy;
 use Player;
-use ActorType;
 
 use GameMap;
 
@@ -35,17 +35,16 @@ use MapLayer;
 
 use config::MapConfig;
 
-
 impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Menu {
-    fn on_start(&mut self, _: StateData<CustomGameData>) {
+	fn on_start(&mut self, _: StateData<CustomGameData>) {
 		debug!(target: "game_engine", "GAME PAUSED!");
-    }
+	}
 
-    fn handle_event(
-        &mut self,
-        _: StateData<CustomGameData>,
+	fn handle_event(
+		&mut self,
+		_: StateData<CustomGameData>,
 		event: StateEvent<()>,
-    ) -> Trans<CustomGameData<'a, 'b>, ()> {
+	) -> Trans<CustomGameData<'a, 'b>, ()> {
 		if let StateEvent::Window(event) = &event {
 			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
 				Trans::Quit
@@ -58,12 +57,12 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Menu {
 		} else {
 			Trans::None
 		}
-    }
+	}
 
-    fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, ()> {
-        data.data.update(&data.world, false); // false to say we should not dispatch running
-        Trans::None
-    }
+	fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, ()> {
+		data.data.update(&data.world, false); // false to say we should not dispatch running
+		Trans::None
+	}
 }
 
 impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
@@ -93,7 +92,7 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
 			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
 				Trans::Quit
 			} else if is_key_down(&event, VirtualKeyCode::P) {
-            	Trans::Push(Box::new(Menu))
+				Trans::Push(Box::new(Menu))
 			} else {
 				Trans::None
 			}
@@ -250,20 +249,22 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
 
 	for actor in &game_map.actors {
-		let mut actor_transform = Transform::default();
-		actor_transform.translation =
-			Vector3::new(actor.spawn.0, map_height_in_pixels - actor.spawn.1, 0.1);
+		if actor.actor_type == ActorType::ENEMY {
+			let mut actor_transform = Transform::default();
+			actor_transform.translation =
+				Vector3::new(actor.spawn.0, map_height_in_pixels - actor.spawn.1, 0.1);
 
-		debug!(target: "game_engine", "Spawn actor: {:?}", actor);
+			debug!(target: "game_engine", "Spawn actor: {:?}", actor);
 
-		world
-			.create_entity()
-			.with(sprite_render.clone())
-			.with(actor.clone())
-			.with(Enemy::new())
-			.with(GlobalTransform::default())
-			.with(actor_transform)
-			.build();
+			world
+				.create_entity()
+				.with(sprite_render.clone())
+				.with(actor.clone())
+				.with(Enemy::new())
+				.with(GlobalTransform::default())
+				.with(actor_transform)
+				.build();
+		}
 	}
 }
 
@@ -414,15 +415,25 @@ fn initialise_map(world: &mut World) {
 		}
 	}
 
-	let map_objects = &map.object_groups.get(0).unwrap().objects;
+	for object_group in &map.object_groups {
+		let map_objects = &object_group.objects;
 
-	// TODO: Multiple object layers
-	for object in map_objects {
-		let enemy = Actor::new(object.x, object.y, ActorType::ENEMY);
-		debug!(target: "game_engine", "{:?}", enemy);
-		game_map.add_actor(enemy);
+		for object in map_objects {
+
+			let mut actor_type = ActorType::NOTYPE;
+
+			if object.obj_type == "enemy" {
+				actor_type = ActorType::ENEMY;
+			} else if object.obj_type == "player" {
+				actor_type == ActorType::PLAYER;
+			}
+
+			let enemy = Actor::new(object.x, object.y, actor_type);
+			debug!(target: "game_engine", "{:?}", enemy);
+			game_map.add_actor(enemy);
+		}
 	}
-
+	
 	debug!(target: "game_engine", "{:?}", game_map);
 	world.add_resource(game_map);
 }
