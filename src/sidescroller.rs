@@ -9,7 +9,7 @@ use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
 use amethyst::renderer::{
 	Camera, MaterialTextureSet, PngFormat, Projection, Sprite, SpriteRender, SpriteSheet,
-	SpriteSheetHandle, Texture, TextureCoordinates, VirtualKeyCode,
+	SpriteSheetHandle, Texture, TextureCoordinates, VirtualKeyCode, TextureMetadata
 };
 
 use std::fs::File;
@@ -35,7 +35,7 @@ use MapLayer;
 
 use config::MapConfig;
 
-impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Menu {
+impl<'a, 'b> State<CustomGameData<'a, 'b>, StateEvent> for Menu {
 	fn on_start(&mut self, _: StateData<CustomGameData>) {
 		debug!(target: "game_engine", "GAME PAUSED!");
 	}
@@ -43,8 +43,8 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Menu {
 	fn handle_event(
 		&mut self,
 		_: StateData<CustomGameData>,
-		event: StateEvent<()>,
-	) -> Trans<CustomGameData<'a, 'b>, ()> {
+		event: StateEvent,
+	) -> Trans<CustomGameData<'a, 'b>, StateEvent> {
 		if let StateEvent::Window(event) = &event {
 			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
 				Trans::Quit
@@ -59,13 +59,13 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Menu {
 		}
 	}
 
-	fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, ()> {
+	fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, StateEvent> {
 		data.data.update(&data.world, false); // false to say we should not dispatch running
 		Trans::None
 	}
 }
 
-impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
+impl<'a, 'b> State<CustomGameData<'a, 'b>, StateEvent> for Sidescroller {
 	fn on_start(&mut self, data: StateData<CustomGameData>) {
 		let world = data.world;
 
@@ -86,8 +86,8 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
 	fn handle_event(
 		&mut self,
 		_: StateData<CustomGameData>,
-		event: StateEvent<()>,
-	) -> Trans<CustomGameData<'a, 'b>, ()> {
+		event: StateEvent,
+	) -> Trans<CustomGameData<'a, 'b>, StateEvent> {
 		if let StateEvent::Window(event) = &event {
 			if is_close_requested(&event) || is_key_down(&event, VirtualKeyCode::Escape) {
 				Trans::Quit
@@ -101,7 +101,7 @@ impl<'a, 'b> State<CustomGameData<'a, 'b>, ()> for Sidescroller {
 		}
 	}
 
-	fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, ()> {
+	fn update(&mut self, data: StateData<CustomGameData>) -> Trans<CustomGameData<'a, 'b>, StateEvent> {
 		data.data.update(&data.world, true);
 		Trans::None
 	}
@@ -114,7 +114,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		loader.load(
 			"sprites/player.png",
 			PngFormat,
-			Default::default(),
+			TextureMetadata::srgb_scale(),
 			(),
 			&texture_storage,
 		)
@@ -160,7 +160,7 @@ fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		loader.load(
 			"sprites/enemy.png",
 			PngFormat,
-			Default::default(),
+			TextureMetadata::srgb_scale(),
 			(),
 			&texture_storage,
 		)
@@ -280,7 +280,7 @@ fn load_tileset_sheet(
 		loader.load(
 			tileset_path.clone().as_str(),
 			PngFormat,
-			Default::default(),
+			TextureMetadata::srgb_scale(),
 			(),
 			&texture_storage,
 		)

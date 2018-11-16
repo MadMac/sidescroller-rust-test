@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = []
 
 [dependencies]
-amethyst = { path = '../amethyst' }
+amethyst = "0.9.0"
 tiled = "0.8.0"
 log = "0.4"
 log4rs = "0.8.0"
