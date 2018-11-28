@@ -1,8 +1,9 @@
 use amethyst::core::Transform;
 use amethyst::ecs::{Join, ReadExpect, System, WriteStorage};
 
-use GameMap;
 use Actor;
+use GameMap;
+use MapLayer;
 
 pub struct ActorSystem;
 impl<'s> System<'s> for ActorSystem {
@@ -14,7 +15,6 @@ impl<'s> System<'s> for ActorSystem {
 
 	fn run(&mut self, (mut transforms, mut actors, game_map): Self::SystemData) {
 		for (actor, transform) in (&mut actors, &mut transforms).join() {
-
 			// Avoid out of bounds from map
 			if transform.translation[0] <= 1.0 {
 				transform.translation[0] = 1.0;
@@ -24,11 +24,12 @@ impl<'s> System<'s> for ActorSystem {
 				transform.translation[0] = ((&game_map.width - 1) * 32) as f32;
 			}
 
-			// Calcultate tile coordinates for the actor
-
+			// Calculate tile coordinates for the actor
+			
 			let tile_size_as_f32 = &(game_map.tile_size as f32);
 
-			let mut tile_x = (transform.translation[0] / &(game_map.tile_size as f32)).floor() as usize;
+			let mut tile_x =
+				(transform.translation[0] / &(game_map.tile_size as f32)).floor() as usize;
 			let mut tile_x_right = (((transform.translation[0]) + tile_size_as_f32)
 				/ tile_size_as_f32)
 				.floor() as usize;
@@ -43,25 +44,26 @@ impl<'s> System<'s> for ActorSystem {
 			}
 
 			// Collision system
-			if collision_layer.tiles[tile_y][tile_x_right] == 1 {
-				transform.translation[0] = ((tile_x_right-1) * &(game_map.tile_size)) as f32;
+			if is_colliding(collision_layer, tile_x_right, tile_y) {
+				transform.translation[0] = ((tile_x_right - 1) * &(game_map.tile_size)) as f32;
 				// debug!(target: "game_engine", "RIGHT COLLIDE");
 			}
 
-			if collision_layer.tiles[tile_y][tile_x] == 1 {
-				transform.translation[0] = ((tile_x+1) * &(game_map.tile_size)) as f32;
+			if is_colliding(collision_layer, tile_x, tile_y) {
+				transform.translation[0] = ((tile_x + 1) * &(game_map.tile_size)) as f32;
 				// debug!(target: "game_engine", "LEFT COLLIDE");
 			}
 
-			tile_x = ((transform.translation[0]+1.0) / &(game_map.tile_size as f32)).floor() as usize;
-			tile_x_right = (((transform.translation[0]) + tile_size_as_f32- 1.0)
+			tile_x =
+				((transform.translation[0] + 1.0) / &(game_map.tile_size as f32)).floor() as usize;
+			tile_x_right = (((transform.translation[0]) + tile_size_as_f32 - 1.0)
 				/ tile_size_as_f32)
 				.floor() as usize;
 
 			// TODO: Somehow refactor these ifs
 			// Downward
-			if (collision_layer.tiles[tile_y + 1][tile_x] == 1
-				|| collision_layer.tiles[tile_y + 1][tile_x_right] == 1)
+			if (is_colliding(collision_layer, tile_x, tile_y + 1)
+				|| is_colliding(collision_layer, tile_x_right, tile_y + 1))
 				&& (transform.translation[1] - tile_size_as_f32 / 2.0)
 					< ((&game_map.height - tile_y) * &game_map.tile_size) as f32
 				&& actor.v_velocity >= 0.0
@@ -71,8 +73,8 @@ impl<'s> System<'s> for ActorSystem {
 				actor.standing = true;
 				transform.translation[1] = (&game_map.height * &game_map.tile_size) as f32
 					- (tile_y * &game_map.tile_size) as f32;
-			} else if (collision_layer.tiles[tile_y - 1][tile_x] == 1
-				|| collision_layer.tiles[tile_y - 1][tile_x_right] == 1)
+			} else if (is_colliding(collision_layer, tile_x, tile_y - 1)
+				|| is_colliding(collision_layer, tile_x_right, tile_y - 1))
 				&& (transform.translation[1] + tile_size_as_f32 / 2.0)
 					< ((&game_map.height + tile_y) * &game_map.tile_size) as f32
 				&& actor.v_velocity < 0.0
@@ -88,4 +90,8 @@ impl<'s> System<'s> for ActorSystem {
 			}
 		}
 	}
+}
+
+fn is_colliding(layer: &MapLayer, x: usize, y: usize) -> bool {
+	layer.tiles[y][x] == 1
 }
