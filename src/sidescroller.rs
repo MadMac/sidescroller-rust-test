@@ -425,7 +425,7 @@ fn initialise_map(world: &mut World) {
 			if object.obj_type == "enemy" {
 				actor_type = ActorType::ENEMY;
 			} else if object.obj_type == "player" {
-				actor_type == ActorType::PLAYER;
+				actor_type = ActorType::PLAYER;
 			}
 
 			let enemy = Actor::new(object.x, object.y, actor_type);

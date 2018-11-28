@@ -59,8 +59,8 @@ fn main() -> Result<(), amethyst::Error> {
     );
 
     let game_data = CustomGameDataBuilder::default()
-        .with_running(systems::ActorSystem, "actor_system", &[])
         .with_running(systems::PlayerSystem, "player_system", &[])
+        .with_running(systems::ActorSystem, "actor_system", &["player_system"])
         .with_running(systems::EnemySystem, "enemy_system", &["actor_system"])
         .with_running(systems::GravitySystem, "gravity_system", &["actor_system"])
         .with_base_bundle(TransformBundle::new())?

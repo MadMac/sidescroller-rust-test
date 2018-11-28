@@ -58,6 +58,7 @@ impl<'s> System<'s> for ActorSystem {
 				/ tile_size_as_f32)
 				.floor() as usize;
 
+			// TODO: Somehow refactor these ifs
 			// Downward
 			if (collision_layer.tiles[tile_y + 1][tile_x] == 1
 				|| collision_layer.tiles[tile_y + 1][tile_x_right] == 1)
