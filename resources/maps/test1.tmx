@@ -85,7 +85,7 @@
   </object>
  </objectgroup>
  <objectgroup name="Allies">
-  <object id="18" name="Player" type="player" x="128" y="717">
+  <object id="18" name="Player" type="player" x="370" y="281">
    <point/>
   </object>
  </objectgroup>

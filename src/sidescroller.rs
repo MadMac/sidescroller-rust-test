@@ -216,12 +216,17 @@ fn initialise_camera(world: &mut World) {
 }
 
 fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
+	let game_map = world.read_resource::<GameMap>().clone();
+	let player_data = game_map.get_player();
+
+	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
+
 	let mut player_transform = Transform::default();
-	player_transform.translation = Vector3::new(32.0, 300.0, 0.1);
+	player_transform.translation = Vector3::new(player_data.spawn.0, map_height_in_pixels - player_data.spawn.1, 0.1);
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
-		sprite_number: 0, // paddle is the first sprite in the sprite_sheet
+		sprite_number: 0, 
 		flip_horizontal: false,
 		flip_vertical: false,
 	};
@@ -241,7 +246,7 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
-		sprite_number: 0, // paddle is the first sprite in the sprite_sheet
+		sprite_number: 0, 
 		flip_horizontal: false,
 		flip_vertical: false,
 	};
@@ -435,5 +440,7 @@ fn initialise_map(world: &mut World) {
 	}
 	
 	debug!(target: "game_engine", "{:?}", game_map);
+
+	debug!(target: "game_engine", "PLAYER DATA: {:?}", game_map.get_player());
 	world.add_resource(game_map);
 }

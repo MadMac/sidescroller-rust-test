@@ -142,6 +142,16 @@ impl GameMap {
     fn add_actor(&mut self, actor: Actor) {
         self.actors.push(actor);
     }
+
+    fn get_player(&self) -> &Actor {
+        for actor in &self.actors {
+            if actor.actor_type == ActorType::PLAYER {
+                return actor;
+            }
+        }
+
+        panic!("Couldn't find player data in the gamemap data");
+    }
 }
 
 #[derive(Debug, Clone)]
