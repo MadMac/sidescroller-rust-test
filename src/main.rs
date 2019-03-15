@@ -5,7 +5,6 @@ extern crate amethyst;
 extern crate rand;
 
 use amethyst::core::transform::TransformBundle;
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::input::InputBundle;
 use amethyst::prelude::*;
 use amethyst::renderer::{DisplayConfig, DrawFlat2D, Pipeline, RenderBundle, Stage};
@@ -26,7 +25,7 @@ fn main() -> Result<(), amethyst::Error> {
     // amethyst::start_logger(Default::default());
     log4rs::init_file("log4rs.yml", Default::default()).unwrap();
 
-    use sidescroller::Sidescroller;
+    use crate::sidescroller::Sidescroller;
 
     let binding_path = format!(
         "{}/resources/bindings_config.ron",
@@ -75,112 +74,4 @@ fn main() -> Result<(), amethyst::Error> {
         .build(game_data)?;
     game.run();
     Ok(())
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ActorType {
-    ENEMY,
-    PLAYER,
-    NOTYPE,
-}
-
-#[derive(Debug, Clone)]
-pub struct Actor {
-    pub width: f32,
-    pub height: f32,
-    pub v_velocity: f32,
-    pub standing: bool,
-    pub spawn: (f32, f32),
-    pub actor_type: ActorType,
-}
-
-impl Actor {
-    fn new(x: f32, y: f32, actor_type: ActorType) -> Actor {
-        Actor {
-            width: 32.0,
-            height: 32.0,
-            v_velocity: 5.0,
-            standing: false,
-            spawn: (x, y),
-            actor_type: actor_type,
-        }
-    }
-}
-
-pub struct Player {}
-
-impl Player {
-    fn new() -> Player {
-        Player {}
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct GameMap {
-    pub width: usize,
-    pub height: usize,
-    pub tile_size: usize,
-    pub layers: Vec<MapLayer>,
-    pub actors: Vec<Actor>,
-}
-
-impl GameMap {
-    fn new(width: usize, height: usize) -> GameMap {
-        GameMap {
-            width: width,
-            height: height,
-            layers: Vec::new(),
-            tile_size: 32,
-            actors: Vec::new(),
-        }
-    }
-
-    fn push(&mut self, map_layer: MapLayer) {
-        self.layers.push(map_layer);
-    }
-
-    fn add_actor(&mut self, actor: Actor) {
-        self.actors.push(actor);
-    }
-
-    fn get_player(&self) -> &Actor {
-        for actor in &self.actors {
-            if actor.actor_type == ActorType::PLAYER {
-                return actor;
-            }
-        }
-
-        panic!("Couldn't find player data in the gamemap data");
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct MapLayer {
-    pub tiles: Vec<Vec<u32>>,
-}
-
-impl MapLayer {
-    fn new(tiles: Vec<Vec<u32>>) -> MapLayer {
-        MapLayer { tiles: tiles }
-    }
-}
-
-impl Component for Player {
-    type Storage = DenseVecStorage<Self>;
-}
-
-impl Component for Actor {
-    type Storage = DenseVecStorage<Self>;
-}
-
-pub struct Enemy {}
-
-impl Enemy {
-    fn new() -> Enemy {
-        Enemy {}
-    }
-}
-
-impl Component for Enemy {
-    type Storage = DenseVecStorage<Self>;
 }

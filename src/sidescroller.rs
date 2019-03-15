@@ -1,9 +1,9 @@
 extern crate tiled;
 
-use game_data::CustomGameData;
+use crate::game_data::CustomGameData;
 
 use amethyst::assets::{AssetStorage, Loader};
-use amethyst::core::cgmath::Vector3;
+use amethyst::core::nalgebra::Vector3;
 use amethyst::core::transform::{GlobalTransform, Transform};
 use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
@@ -11,6 +11,7 @@ use amethyst::renderer::{
 	Camera, MaterialTextureSet, PngFormat, Projection, Sprite, SpriteRender, SpriteSheet,
 	SpriteSheetHandle, Texture, TextureCoordinates, VirtualKeyCode, TextureMetadata
 };
+use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 use std::fs::File;
 use std::io::BufReader;
@@ -24,16 +25,7 @@ pub struct Menu;
 pub const CAMERA_WIDTH: f32 = 800.0;
 pub const CAMERA_HEIGHT: f32 = 600.0;
 
-use Actor;
-use ActorType;
-use Enemy;
-use Player;
-
-use GameMap;
-
-use MapLayer;
-
-use config::MapConfig;
+use crate::config::MapConfig;
 
 impl<'a, 'b> State<CustomGameData<'a, 'b>, StateEvent> for Menu {
 	fn on_start(&mut self, _: StateData<CustomGameData>) {
@@ -443,4 +435,113 @@ fn initialise_map(world: &mut World) {
 
 	debug!(target: "game_engine", "PLAYER DATA: {:?}", game_map.get_player());
 	world.add_resource(game_map);
+}
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ActorType {
+    ENEMY,
+    PLAYER,
+    NOTYPE,
+}
+
+#[derive(Debug, Clone)]
+pub struct Actor {
+    pub width: f32,
+    pub height: f32,
+    pub v_velocity: f32,
+    pub standing: bool,
+    pub spawn: (f32, f32),
+    pub actor_type: ActorType,
+}
+
+impl Actor {
+    fn new(x: f32, y: f32, actor_type: ActorType) -> Actor {
+        Actor {
+            width: 32.0,
+            height: 32.0,
+            v_velocity: 5.0,
+            standing: false,
+            spawn: (x, y),
+            actor_type: actor_type,
+        }
+    }
+}
+
+pub struct Player {}
+
+impl Player {
+    fn new() -> Player {
+        Player {}
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GameMap {
+    pub width: usize,
+    pub height: usize,
+    pub tile_size: usize,
+    pub layers: Vec<MapLayer>,
+    pub actors: Vec<Actor>,
+}
+
+impl GameMap {
+    fn new(width: usize, height: usize) -> GameMap {
+        GameMap {
+            width: width,
+            height: height,
+            layers: Vec::new(),
+            tile_size: 32,
+            actors: Vec::new(),
+        }
+    }
+
+    fn push(&mut self, map_layer: MapLayer) {
+        self.layers.push(map_layer);
+    }
+
+    fn add_actor(&mut self, actor: Actor) {
+        self.actors.push(actor);
+    }
+
+    fn get_player(&self) -> &Actor {
+        for actor in &self.actors {
+            if actor.actor_type == ActorType::PLAYER {
+                return actor;
+            }
+        }
+
+        panic!("Couldn't find player data in the gamemap data");
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct MapLayer {
+    pub tiles: Vec<Vec<u32>>,
+}
+
+impl MapLayer {
+    fn new(tiles: Vec<Vec<u32>>) -> MapLayer {
+        MapLayer { tiles: tiles }
+    }
+}
+
+impl Component for Player {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl Component for Actor {
+    type Storage = DenseVecStorage<Self>;
+}
+
+pub struct Enemy {}
+
+impl Enemy {
+    fn new() -> Enemy {
+        Enemy {}
+    }
+}
+
+impl Component for Enemy {
+    type Storage = DenseVecStorage<Self>;
 }

@@ -3,8 +3,8 @@ use amethyst::ecs::{Join, System, WriteStorage};
 
 use rand::prelude::*;
 
-use Actor;
-use Enemy;
+use crate::sidescroller::Actor;
+use crate::sidescroller::Enemy;
 
 pub struct EnemySystem;
 impl<'s> System<'s> for EnemySystem {
@@ -24,7 +24,7 @@ impl<'s> System<'s> for EnemySystem {
 
 				if x < 0.05 {
 					actor.v_velocity = -600.0;
-					transform.translation[1] += 1.0;
+					transform.translate_y(1.0);
 				}
 			}
 		}

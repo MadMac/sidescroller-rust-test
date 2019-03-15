@@ -3,8 +3,8 @@ use amethyst::ecs::{Join, Read, ReadStorage, System, WriteStorage};
 use amethyst::input::InputHandler;
 use amethyst::renderer::Camera;
 
-use Actor;
-use Player;
+use crate::sidescroller::Actor;
+use crate::sidescroller::Player;
 
 const MOVEMENT_SCALE: f32 = 3.0;
 
@@ -30,19 +30,19 @@ impl<'s> System<'s> for PlayerSystem {
 			if let Some(mv_amount) = movement {
 				let scaled_amount = MOVEMENT_SCALE * mv_amount as f32;
 
-				transform.translation[0] += scaled_amount;
+				transform.translate_x(scaled_amount);
 				
 			}
 
 			if let Some(is_jumping) = input.action_is_down("jumping") {
 				if is_jumping && actor.standing {
 					actor.v_velocity = -600.0;
-					transform.translation[1] += 1.0;
+					transform.translate_y(1.0);
 				}
 			}
 
-			player_x = transform.translation[0];
-			player_y = transform.translation[1];
+			player_x = transform.translation().x;
+			player_y = transform.translation().y;
 
 			// debug!(target: "game_engine",
 			// 	"Player coordinates: {} {}",
@@ -53,14 +53,14 @@ impl<'s> System<'s> for PlayerSystem {
 		for (_, transform) in (&camera, &mut transforms).join() {
 
 			// Place camera view so that the player is in the middle
-			transform.translation[0] = player_x - (800.0/2.0);
-			transform.translation[1] = player_y - (600.0/2.0);
-			if transform.translation[0] < 0.0 {
-				transform.translation[0] = 0.0;
+			transform.set_x(player_x - (800.0/2.0));
+			transform.set_y(player_y - (600.0/2.0));
+			if transform.translation().x < 0.0 {
+				transform.set_x(0.0);
 			}
 
-			if transform.translation[1] < 0.0 {
-				transform.translation[1] = 0.0;
+			if transform.translation().y < 0.0 {
+				transform.set_y(0.0);
 			}
 		}
 	}
