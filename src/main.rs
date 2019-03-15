@@ -8,7 +8,7 @@ use amethyst::core::transform::TransformBundle;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::input::InputBundle;
 use amethyst::prelude::*;
-use amethyst::renderer::{DisplayConfig, DrawSprite, Pipeline, RenderBundle, Stage};
+use amethyst::renderer::{DisplayConfig, DrawFlat2D, Pipeline, RenderBundle, Stage};
 
 #[macro_use]
 extern crate log;
@@ -55,7 +55,7 @@ fn main() -> Result<(), amethyst::Error> {
     let pipe = Pipeline::build().with_stage(
         Stage::with_backbuffer()
             .clear_target([0.0, 0.0, 0.0, 1.0], 1.0)
-            .with_pass(DrawSprite::new()),
+            .with_pass(DrawFlat2D::new()),
     );
 
     let game_data = CustomGameDataBuilder::default()

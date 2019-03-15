@@ -2,12 +2,13 @@
 name = "sidescroller_test"
 version = "0.1.0"
 authors = []
+edition = "2018"
 
 [dependencies]
-amethyst = "0.9.0"
+amethyst = "0.10.0"
 tiled = "0.8.0"
 log = "0.4"
 log4rs = "0.8.0"
-rand = "0.5.5"
-serde = "1.0.79"
-serde_derive = "1.0.79"
+rand = "0.6.5"
+serde = "1.0.89"
+serde_derive = "1.0.89"
