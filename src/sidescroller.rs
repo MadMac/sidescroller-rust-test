@@ -8,8 +8,9 @@ use amethyst::core::transform::{GlobalTransform, Transform};
 use amethyst::input::{is_close_requested, is_key_down};
 use amethyst::prelude::*;
 use amethyst::renderer::{
-	Camera, MaterialTextureSet, PngFormat, Projection, Sprite, SpriteRender, SpriteSheet,
-	SpriteSheetHandle, Texture, TextureCoordinates, VirtualKeyCode, TextureMetadata
+	Camera, PngFormat, Projection, Sprite, SpriteRender, SpriteSheet,
+	SpriteSheetHandle, Texture, TextureCoordinates, VirtualKeyCode, TextureMetadata,
+	SpriteSheetFormat
 };
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
@@ -112,6 +113,17 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		)
 	};
 
+	let loader = world.read_resource::<Loader>();
+	let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
+
+	loader.load(
+		"sprites/player_spritesheet.ron",
+		SpriteSheetFormat,
+		texture_handle, 
+		(),
+		&sprite_sheet_store,
+	)
+	/*
 	let tex_coords = TextureCoordinates {
 		left: 0.0,
 		right: 1.0,
@@ -142,6 +154,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 	};
 
 	sprite_sheet_handle
+	*/
 }
 
 // TODO: Better way to handle multiple spritesheet loading
@@ -158,6 +171,18 @@ fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		)
 	};
 
+	let loader = world.read_resource::<Loader>();
+	let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
+
+	loader.load(
+		"sprites/enemy_spritesheet.ron",
+		SpriteSheetFormat,
+		texture_handle, 
+		(),
+		&sprite_sheet_store,
+	)
+
+	/*
 	let tex_coords = TextureCoordinates {
 		left: 0.0,
 		right: 1.0,
@@ -188,11 +213,13 @@ fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 	};
 
 	sprite_sheet_handle
+	*/
 }
 
 fn initialise_camera(world: &mut World) {
 	let mut camera_transform = Transform::default();
-	camera_transform.translation = Vector3::new(0.0, 0.0, 1.0);
+	camera_transform.set_xyz(0.0, 0.0, 1.0);
+	// camera_transform.translation = Vector3::new(0.0, 0.0, 1.0);
 
 	world
 		.create_entity()
@@ -214,13 +241,11 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
 
 	let mut player_transform = Transform::default();
-	player_transform.translation = Vector3::new(player_data.spawn.0, map_height_in_pixels - player_data.spawn.1, 0.1);
+	player_transform.set_xyz(player_data.spawn.0, map_height_in_pixels - player_data.spawn.1, 0.1);
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
-		sprite_number: 0, 
-		flip_horizontal: false,
-		flip_vertical: false,
+		sprite_number: 0
 	};
 
 	world
@@ -238,9 +263,7 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
-		sprite_number: 0, 
-		flip_horizontal: false,
-		flip_vertical: false,
+		sprite_number: 0
 	};
 
 	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
@@ -248,8 +271,7 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 	for actor in &game_map.actors {
 		if actor.actor_type == ActorType::ENEMY {
 			let mut actor_transform = Transform::default();
-			actor_transform.translation =
-				Vector3::new(actor.spawn.0, map_height_in_pixels - actor.spawn.1, 0.1);
+			actor_transform.set_xyz(actor.spawn.0, map_height_in_pixels - actor.spawn.1, 0.1);
 
 			debug!(target: "game_engine", "Spawn actor: {:?}", actor);
 
@@ -311,22 +333,35 @@ fn load_tileset_sheet(
 		sprite_vec.push(tile_sprite.clone());
 	}
 
-	let texture_id = 0;
-	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
-	material_texture_set.insert(texture_id, texture_handle);
 
-	let sprite_sheet = SpriteSheet {
-		texture_id,
-		sprites: sprite_vec,
-	};
+	let loader = world.read_resource::<Loader>();
+	let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
 
-	let sprite_sheet_handle = {
-		let loader = world.read_resource::<Loader>();
-		let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-		loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
-	};
+	loader.load(
+		"resources/maps/tilesets/map_textures.ron",
+		SpriteSheetFormat,
+		texture_handle, 
+		(),
+		&sprite_sheet_store,
+	)
 
-	sprite_sheet_handle
+
+	// let texture_id = 0;
+	// let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
+	// material_texture_set.insert(texture_id, texture_handle);
+
+	// let sprite_sheet = SpriteSheet {
+	// 	texture_id,
+	// 	sprites: sprite_vec,
+	// };
+
+	// let sprite_sheet_handle = {
+	// 	let loader = world.read_resource::<Loader>();
+	// 	let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
+	// 	loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
+	// };
+
+	// sprite_sheet_handle
 }
 
 fn initialise_map(world: &mut World) {
@@ -389,7 +424,7 @@ fn initialise_map(world: &mut World) {
 				}
 
 				let mut tile_transform = Transform::default();
-				tile_transform.translation = Vector3::new(
+				tile_transform.set_xyz(
 					32.0 * (tile as f32),
 					32.0 * ((map_height - row) as f32),
 					0.0,
@@ -397,9 +432,7 @@ fn initialise_map(world: &mut World) {
 
 				let tileset_render = SpriteRender {
 					sprite_sheet: tileset_sheet_handle.clone(),
-					sprite_number: (tile_style as usize),
-					flip_horizontal: false,
-					flip_vertical: false,
+					sprite_number: (tile_style as usize)
 				};
 
 				world

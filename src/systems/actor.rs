@@ -71,8 +71,8 @@ impl<'s> System<'s> for ActorSystem {
 				// debug!(target: "game_engine", "DOWN COLLIDE");
 				actor.v_velocity = 0.0;
 				actor.standing = true;
-				transform.translation().y = (&game_map.height * &game_map.tile_size) as f32
-					- (tile_y * &game_map.tile_size) as f32;
+				transform.set_y((&game_map.height * &game_map.tile_size) as f32
+					- (tile_y * &game_map.tile_size) as f32);
 			} else if (is_colliding(collision_layer, tile_x, tile_y - 1)
 				|| is_colliding(collision_layer, tile_x_right, tile_y - 1))
 				&& (transform.translation().y + tile_size_as_f32 / 2.0)
