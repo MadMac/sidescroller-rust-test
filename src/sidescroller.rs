@@ -123,38 +123,7 @@ fn load_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		(),
 		&sprite_sheet_store,
 	)
-	/*
-	let tex_coords = TextureCoordinates {
-		left: 0.0,
-		right: 1.0,
-		bottom: 0.0,
-		top: 1.0,
-	};
 
-	let player_sprite = Sprite {
-		width: 32.0,
-		height: 32.0,
-		offsets: [32.0 / 2.0, 32.0 / 2.0],
-		tex_coords,
-	};
-
-	let texture_id = 1;
-	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
-	material_texture_set.insert(texture_id, texture_handle);
-
-	let sprite_sheet = SpriteSheet {
-		texture_id,
-		sprites: vec![player_sprite],
-	};
-
-	let sprite_sheet_handle = {
-		let loader = world.read_resource::<Loader>();
-		let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-		loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
-	};
-
-	sprite_sheet_handle
-	*/
 }
 
 // TODO: Better way to handle multiple spritesheet loading
@@ -182,38 +151,6 @@ fn load_enemy_sprite_sheet(world: &mut World) -> SpriteSheetHandle {
 		&sprite_sheet_store,
 	)
 
-	/*
-	let tex_coords = TextureCoordinates {
-		left: 0.0,
-		right: 1.0,
-		bottom: 0.0,
-		top: 1.0,
-	};
-
-	let enemy_sprite = Sprite {
-		width: 32.0,
-		height: 32.0,
-		offsets: [32.0 / 2.0, 32.0 / 2.0],
-		tex_coords,
-	};
-
-	let texture_id = 2;
-	let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
-	material_texture_set.insert(texture_id, texture_handle);
-
-	let sprite_sheet = SpriteSheet {
-		texture_id,
-		sprites: vec![enemy_sprite],
-	};
-
-	let sprite_sheet_handle = {
-		let loader = world.read_resource::<Loader>();
-		let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-		loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
-	};
-
-	sprite_sheet_handle
-	*/
 }
 
 fn initialise_camera(world: &mut World) {
@@ -238,10 +175,8 @@ fn initialise_player(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) 
 	let game_map = world.read_resource::<GameMap>().clone();
 	let player_data = game_map.get_player();
 
-	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
-
 	let mut player_transform = Transform::default();
-	player_transform.set_xyz(player_data.spawn.0, map_height_in_pixels - player_data.spawn.1, 0.1);
+	player_transform.set_xyz(player_data.spawn.0, player_data.spawn.1, 0.1);
 
 	let sprite_render = SpriteRender {
 		sprite_sheet: sprite_sheet_handle.clone(),
@@ -266,12 +201,10 @@ fn initialise_actor(world: &mut World, sprite_sheet_handle: SpriteSheetHandle) {
 		sprite_number: 0
 	};
 
-	let map_height_in_pixels = (game_map.height * game_map.tile_size) as f32;
-
 	for actor in &game_map.actors {
 		if actor.actor_type == ActorType::ENEMY {
 			let mut actor_transform = Transform::default();
-			actor_transform.set_xyz(actor.spawn.0, map_height_in_pixels - actor.spawn.1, 0.1);
+			actor_transform.set_xyz(actor.spawn.0, actor.spawn.1, 0.1);
 
 			debug!(target: "game_engine", "Spawn actor: {:?}", actor);
 
@@ -345,23 +278,6 @@ fn load_tileset_sheet(
 		&sprite_sheet_store,
 	)
 
-
-	// let texture_id = 0;
-	// let mut material_texture_set = world.write_resource::<MaterialTextureSet>();
-	// material_texture_set.insert(texture_id, texture_handle);
-
-	// let sprite_sheet = SpriteSheet {
-	// 	texture_id,
-	// 	sprites: sprite_vec,
-	// };
-
-	// let sprite_sheet_handle = {
-	// 	let loader = world.read_resource::<Loader>();
-	// 	let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-	// 	loader.load_from_data(sprite_sheet, (), &sprite_sheet_store)
-	// };
-
-	// sprite_sheet_handle
 }
 
 fn initialise_map(world: &mut World) {
@@ -426,7 +342,7 @@ fn initialise_map(world: &mut World) {
 				let mut tile_transform = Transform::default();
 				tile_transform.set_xyz(
 					32.0 * (tile as f32),
-					32.0 * ((map_height - row) as f32),
+					32.0 * (row as f32),
 					0.0,
 				);
 

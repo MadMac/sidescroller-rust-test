@@ -33,8 +33,7 @@ impl<'s> System<'s> for ActorSystem {
 			let mut tile_x_right = (((transform.translation().x) + tile_size_as_f32)
 				/ tile_size_as_f32)
 				.floor() as usize;
-			let tile_y = (&game_map.height - 1)
-				- ((transform.translation().y - tile_size_as_f32 / 2.0) / tile_size_as_f32).floor()
+			let tile_y = ((transform.translation().y + tile_size_as_f32 / 2.0) / tile_size_as_f32).floor()
 					as usize;
 
 			let collision_layer = &game_map.layers[1];
@@ -64,27 +63,25 @@ impl<'s> System<'s> for ActorSystem {
 			// Downward
 			if (is_colliding(collision_layer, tile_x, tile_y + 1)
 				|| is_colliding(collision_layer, tile_x_right, tile_y + 1))
-				&& (transform.translation().y - tile_size_as_f32 / 2.0)
-					< ((&game_map.height - tile_y) * &game_map.tile_size) as f32
+				&& (transform.translation().y + tile_size_as_f32 / 2.0)
+					> ((tile_y) * &game_map.tile_size) as f32
 				&& actor.v_velocity >= 0.0
 			{
 				// debug!(target: "game_engine", "DOWN COLLIDE");
 				actor.v_velocity = 0.0;
 				actor.standing = true;
-				transform.set_y((&game_map.height * &game_map.tile_size) as f32
-					- (tile_y * &game_map.tile_size) as f32);
+				transform.set_y((tile_y * &game_map.tile_size) as f32);
 			} else if (is_colliding(collision_layer, tile_x, tile_y - 1)
 				|| is_colliding(collision_layer, tile_x_right, tile_y - 1))
-				&& (transform.translation().y + tile_size_as_f32 / 2.0)
-					< ((&game_map.height + tile_y) * &game_map.tile_size) as f32
+				&& (transform.translation().y - tile_size_as_f32 / 2.0)
+					< ((tile_y) * &game_map.tile_size) as f32
 				&& actor.v_velocity < 0.0
 			{
 				// Upwards
 				// debug!(target: "game_engine", "UP COLLIDE");
 				actor.v_velocity = 0.0;
 				actor.standing = false;
-				transform.set_y((&game_map.height * &game_map.tile_size) as f32
-					- (tile_y * &game_map.tile_size) as f32);
+				transform.set_y((tile_y * &game_map.tile_size) as f32);
 			} else {
 				actor.standing = false;
 			}
